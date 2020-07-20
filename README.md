@@ -1,2 +1,9 @@
 # Android_WeatherAlarm
-날씨 알리미 - 아침마다 날씨를 푸시 메시지로 알려주는 날씨 알림 애플리케이션
+Android project using my idea that is alarming the weather every morning.
+
+## Basic Information
+
+기획 및 개발 기간 : 2020.07.20 ~ 
+기술 스택 : Android Studio, Java, Firebase
+
+## Application Information
