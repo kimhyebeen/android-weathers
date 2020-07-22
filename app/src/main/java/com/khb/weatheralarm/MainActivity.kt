@@ -8,6 +8,7 @@ import android.location.LocationManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
                 ) != PackageManager.PERMISSION_GRANTED
             ) { // permission denied
                 println("거절")
-                finish()
+                Toast.makeText(this, "권한이 거절되어 정상적인 사용이 어려움", Toast.LENGTH_SHORT).show()
                 return
             }
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
