@@ -11,6 +11,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import com.khb.weatheralarm.model.WeatherModel
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     lateinit var locationManager: LocationManager
@@ -18,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     var latitute: Double? = null
     var longitute: Double? = null
     var LOCATION_REQUEST_CODE = 200
+    val API_KEY = "7a1407abea3d6cbceb15cfb01da233a2"
+    lateinit var networkHelper: NetworkHelper
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -49,8 +54,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        networkHelper = NetworkHelper()
+
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         requestPermissions()
+
+        val param = mapOf(
+            "lat" to latitute.toString(),
+            "lon" to latitute.toString(),
+            "exclude" to "{current,minutely,daily}",
+            "appid" to API_KEY,
+            "units" to "metric"
+        )
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://api.openweathermap.org/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        networkHelper.setRetrofit(retrofit)
+        networkHelper.callWeatherList(param)
 
     }
 
