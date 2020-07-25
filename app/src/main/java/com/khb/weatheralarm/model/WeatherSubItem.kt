@@ -1,7 +1,8 @@
 package com.khb.weatheralarm.model
 
 data class WeatherSubItem (
-    val id: Int?,
-    val main: String?,
-    val description: String?,
-    val icon: String?)
+    var id: Int,
+    var main: String,
+    var description: String,
+    var icon: String
+)

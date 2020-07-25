@@ -12,6 +12,9 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.khb.weatheralarm.model.WeatherModel
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -21,8 +24,6 @@ class MainActivity : AppCompatActivity() {
     var latitute: Double? = null
     var longitute: Double? = null
     var LOCATION_REQUEST_CODE = 200
-    val API_KEY = getString(R.string.api_key)
-    lateinit var networkHelper: NetworkHelper
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -54,28 +55,31 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        networkHelper = NetworkHelper()
-
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        requestPermissions()
 
-        val param = mapOf(
-            "lat" to latitute.toString(),
-            "lon" to latitute.toString(),
-            "exclude" to "{current,minutely,daily}",
-            "appid" to API_KEY,
-            "units" to "metric"
-        )
+        requestLocationPermissions()
+
+        // 네트워크 작업
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://api.openweathermap.org/")
+            .baseUrl("https://api.openweathermap.org/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        networkHelper.setRetrofit(retrofit)
-        networkHelper.callWeatherList(param)
+        val api = retrofit.create(WeatherAPI::class.java)
+        val callGetWeather = api.getWeatherList(latitute!!.toString(), longitute!!.toString(), "{current,minutely,daily}", getString(R.string.api_key), "metric")
 
+        callGetWeather.enqueue(object : Callback<WeatherModel> {
+            override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
+                println("실패 : $t")
+            }
+
+            override fun onResponse(call: Call<WeatherModel>, response: Response<WeatherModel>) {
+                println("성공 : ${response.body().toString()}")
+            }
+
+        })
     }
 
-    fun requestPermissions() {
+    fun requestLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -84,7 +88,6 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) { // request permissions
-            println("여기는????")
             ActivityCompat.requestPermissions(this,
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,

@@ -1,9 +1,9 @@
 package com.khb.weatheralarm.model
 
 data class WeatherModel(
-    val lat: Double?,
-    val lon: Double?,
-    val timezone: String?,
-    val timezone_offset: Int?,
-    val hourly: ArrayList<WeatherHourly>?
+    var lat: Double,
+    var lon: Double,
+    var timezone: String,
+    var timezone_offset: Int,
+    var hourly: ArrayList<WeatherHourly>
 )

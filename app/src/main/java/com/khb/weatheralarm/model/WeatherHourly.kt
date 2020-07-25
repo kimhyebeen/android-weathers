@@ -1,11 +1,11 @@
 package com.khb.weatheralarm.model
 
 data class WeatherHourly(
-    val dt: Long?,
-    val temp: Double?,
-    val feels_like: Double?,
-    val humidity: Int?,
-    val clouds: Int?,
-    val visibility: Int?,
-    val weather: ArrayList<WeatherSubItem>?
+    var dt: Long,
+    var temp: Double,
+    var feels_like: Double,
+    var humidity: Int,
+    var clouds: Int,
+    var visibility: Int,
+    var weather: ArrayList<WeatherSubItem>
 )
