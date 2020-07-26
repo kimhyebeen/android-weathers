@@ -59,18 +59,20 @@ class MainActivity : AppCompatActivity() {
 
             // get the weather api
             location?.let {
-                // 원래는 파라미터에 it.latitude.toString()이랑 it.longitude.toString()을 넣어줘야 함.
-                networkHelper.requestCurrentWeatherAPI("37.305443", "126.817403")
-                    ?.enqueue(object : Callback<WeatherModel> {
-                        override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
-                            println("2 실패 : $t")
-                        }
+                launch(Dispatchers.IO) { // current
+                    // 원래는 파라미터에 it.latitude.toString()이랑 it.longitude.toString()을 넣어줘야 함.
+                    networkHelper.requestCurrentWeatherAPI("37.305443", "126.817403")
+                        ?.enqueue(object : Callback<WeatherModel> {
+                            override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
+                                println("2 실패 : $t")
+                            }
 
-                        override fun onResponse(call: Call<WeatherModel>, response: Response<WeatherModel>) {
-                            println("2 성공 : ${response.body().toString()}")
-                            response.body()?.let { loadCurrentData(it) }
-                        }
-                    })
+                            override fun onResponse(call: Call<WeatherModel>, response: Response<WeatherModel>) {
+                                println("2 성공 : ${response.body().toString()}")
+                                response.body()?.let { loadCurrentData(it) }
+                            }
+                        })
+                }
             } ?: launch(Dispatchers.Main) {
                 Toast.makeText(applicationContext, "There is no location information.", Toast.LENGTH_SHORT).show()
             }
@@ -78,10 +80,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadCurrentData(weather: WeatherModel) {
-        currentTempTextView.text = "${weather.current.temp.toInt()} ℃"
+        weather.current!!.weather[0].id.let {
+            if (it>800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
+            else if (it==800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clear)
+            else if (it>=700) mainConstraintLayout.background = getDrawable(R.drawable.bg_atmosphere)
+            else if (it>=600) mainConstraintLayout.background = getDrawable(R.drawable.bg_snow)
+            else if (it>=300) mainConstraintLayout.background = getDrawable(R.drawable.bg_rain)
+            else mainConstraintLayout.background = getDrawable(R.drawable.bg_storm)
+        }
         Glide.with(this)
-            .load("https://openweathermap.org/img/wn/${weather.current.weather[0].icon}@2x.png")
+            .load("https://openweathermap.org/img/wn/${weather.current!!.weather[0].icon}@2x.png")
             .into(mainWeatherImageView)
+        currentTempTextView.text = "${weather.current!!.temp.toInt()}"
     }
 
     private fun loadHourlyData(weather: WeatherModel) {
