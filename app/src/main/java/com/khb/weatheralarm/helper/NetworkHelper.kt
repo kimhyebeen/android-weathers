@@ -19,26 +19,15 @@ class NetworkHelper(context: Context) {
         this.context = context
     }
 
-    fun requestHourlyWeatherAPI(lat: String, lon: String): WeatherModel? {
-        var weatherModel: WeatherModel? = null
-
+    fun requestHourlyWeatherAPI(lat: String, lon: String): Call<WeatherModel>? {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.openweathermap.org/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        retrofit.create(WeatherAPI::class.java).let {
-            it.getWeatherList(lat, lon, "{current,minutely,daily}", context.getString(R.string.api_key), "metric")
-        }?.enqueue(object : Callback<WeatherModel> {
-            override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
-                println("1 실패 : $t")
-            }
+        val api = retrofit.create(WeatherAPI::class.java)
+        val getWeather = api.getWeatherList(lat, lon, "{hourly,minutely,daily}", context.getString(R.string.api_key), "metric")
 
-            override fun onResponse(call: Call<WeatherModel>, response: Response<WeatherModel>) {
-                println("1 성공 : ${response.body().toString()}")
-                weatherModel = response.body()
-            }
-        })
-        return weatherModel
+        return getWeather
     }
 
     fun requestCurrentWeatherAPI(lat: String, lon: String): Call<WeatherModel>? {

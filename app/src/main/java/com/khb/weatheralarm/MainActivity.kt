@@ -64,12 +64,38 @@ class MainActivity : AppCompatActivity() {
                     networkHelper.requestCurrentWeatherAPI("37.305443", "126.817403")
                         ?.enqueue(object : Callback<WeatherModel> {
                             override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
-                                println("2 실패 : $t")
+                                println("current 실패 : $t")
                             }
 
                             override fun onResponse(call: Call<WeatherModel>, response: Response<WeatherModel>) {
-                                println("2 성공 : ${response.body().toString()}")
+                                println("current 성공 : ${response.body().toString()}")
                                 response.body()?.let { loadCurrentData(it) }
+                            }
+                        })
+                }
+                launch(Dispatchers.IO) {
+                    networkHelper.requestHourlyWeatherAPI("37.305443", "126.817403")
+                        ?.enqueue(object : Callback<WeatherModel> {
+                            override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
+                                println("hourly 실패 : $t")
+                            }
+
+                            override fun onResponse(call: Call<WeatherModel>, response: Response<WeatherModel>) {
+                                println("hourly 성공 : ${response.body().toString()}")
+                                response.body()?.let { loadHourlyData(it) }
+                            }
+                        })
+                }
+                launch(Dispatchers.IO) {
+                    networkHelper.requestDailyWeatherAPI("37.305443", "126.817403")
+                        ?.enqueue(object : Callback<WeatherModel> {
+                            override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
+                                println("daily 실패 : $t")
+                            }
+
+                            override fun onResponse(call: Call<WeatherModel>, response: Response<WeatherModel>) {
+                                println("daily 성공 : ${response.body().toString()}")
+                                response.body()?.let { loadDailyData(it) }
                             }
                         })
                 }
@@ -80,6 +106,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadCurrentData(weather: WeatherModel) {
+        println("current 실행")
         weather.current!!.weather[0].id.let {
             if (it>800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
             else if (it==800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clear)
@@ -95,6 +122,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadHourlyData(weather: WeatherModel) {
+        println("hourly 실행")
+    }
 
+    private fun loadDailyData(weather: WeatherModel) {
+        println("daily 실행")
     }
 }
