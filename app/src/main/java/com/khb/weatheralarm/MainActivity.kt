@@ -1,20 +1,18 @@
 package com.khb.weatheralarm
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
+import com.khb.weatheralarm.helper.LocationHelper
+import com.khb.weatheralarm.model.WeatherAPI
 import com.khb.weatheralarm.model.WeatherModel
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,11 +20,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
-    lateinit var locationManager: LocationManager
+    lateinit var locationHelper: LocationHelper
     var location: Location? = null
     var latitute: Double? = null
     var longitute: Double? = null
-    var LOCATION_REQUEST_CODE = 200
+    val LOCATION_REQUEST_CODE = 200
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -35,21 +33,11 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_REQUEST_CODE) {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) { // permission denied
-                println("거절")
-                Toast.makeText(this, "권한이 거절되어 정상적인 사용이 어려움", Toast.LENGTH_SHORT).show()
-                return
+            location = locationHelper.locationPermissionResult()
+            location?.let {
+                latitute = it.latitude
+                longitute = it.longitude
             }
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            latitute = location?.latitude
-            longitute = location?.longitude
         }
     }
 
@@ -57,17 +45,25 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationHelper = LocationHelper(this)
 
         GlobalScope.launch {
-            requestLocationPermissions()
-            println("2. latitute: $latitute, longitute: $longitute")
-            testTextView.text = "($latitute, $longitute)"
-            requestWeatherAPI()
-            println("3. latitute: $latitute, longitute: $longitute")
+            withContext(Dispatchers.Default) {
+                location = locationHelper.requestLocationPermissions()
+                location?.let {
+                    latitute = it.latitude
+                    longitute = it.longitude
+                }
+            }
+            launch(Dispatchers.Main) {
+                testTextView.text = "($latitute, $longitute)"
+                println("3. latitute: $latitute, longitute: $longitute")
+            }
+            launch(Dispatchers.IO) {
+                requestWeatherAPI()
+                println("5. latitute: $latitute, longitute: $longitute")
+            }
         }
-        println("4. latitute: $latitute, longitute: $longitute")
 
     }
 
@@ -90,28 +86,5 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
-    }
-
-    private fun requestLocationPermissions() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) { // request permissions
-            ActivityCompat.requestPermissions(this,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ), LOCATION_REQUEST_CODE
-            )
-        } else { // get data
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            latitute = location?.latitude
-            longitute = location?.longitude
-        }
-        println("1. latitute: $latitute, longitute: $longitute")
     }
 }

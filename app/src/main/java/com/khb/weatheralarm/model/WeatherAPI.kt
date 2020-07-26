@@ -1,4 +1,4 @@
-package com.khb.weatheralarm
+package com.khb.weatheralarm.model
 
 import com.khb.weatheralarm.model.WeatherModel
 import retrofit2.Call
