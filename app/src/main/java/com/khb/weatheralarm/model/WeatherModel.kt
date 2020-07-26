@@ -5,5 +5,6 @@ data class WeatherModel(
     var lon: Double,
     var timezone: String,
     var timezone_offset: Int,
-    var hourly: ArrayList<WeatherHourly>
+    var current: WeatherItems,
+    var hourly: ArrayList<WeatherItems>?
 )

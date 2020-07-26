@@ -1,6 +1,6 @@
 package com.khb.weatheralarm.model
 
-data class WeatherHourly(
+data class WeatherItems(
     var dt: Long,
     var temp: Double,
     var feels_like: Double,

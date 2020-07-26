@@ -8,7 +8,6 @@ import android.location.Location
 import android.location.LocationManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
 
 class LocationHelper(context: Context) {
     private val context: Context
