@@ -12,6 +12,9 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.khb.weatheralarm.model.WeatherModel
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -57,8 +60,18 @@ class MainActivity : AppCompatActivity() {
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        requestLocationPermissions()
+        GlobalScope.launch {
+            requestLocationPermissions()
+            println("2. latitute: $latitute, longitute: $longitute")
+            testTextView.text = "($latitute, $longitute)"
+            requestWeatherAPI()
+            println("3. latitute: $latitute, longitute: $longitute")
+        }
+        println("4. latitute: $latitute, longitute: $longitute")
 
+    }
+
+    private fun requestWeatherAPI() {
         // 네트워크 작업
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.openweathermap.org/")
@@ -79,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun requestLocationPermissions() {
+    private fun requestLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -99,5 +112,6 @@ class MainActivity : AppCompatActivity() {
             latitute = location?.latitude
             longitute = location?.longitude
         }
+        println("1. latitute: $latitute, longitute: $longitute")
     }
 }
