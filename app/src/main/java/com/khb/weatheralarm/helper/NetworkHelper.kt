@@ -26,7 +26,7 @@ class NetworkHelper(context: Context) {
             .baseUrl("https://api.openweathermap.org/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        retrofit.create(WeatherAPI::class.java)?.let {
+        retrofit.create(WeatherAPI::class.java).let {
             it.getWeatherList(lat, lon, "{current,minutely,daily}", context.getString(R.string.api_key), "metric")
         }?.enqueue(object : Callback<WeatherModel> {
             override fun onFailure(call: Call<WeatherModel>, t: Throwable) {
@@ -47,8 +47,19 @@ class NetworkHelper(context: Context) {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         val api = retrofit.create(WeatherAPI::class.java)
-        val callGetWeather = api.getWeatherList(lat, lon, "{hourly,minutely,daily}", context.getString(R.string.api_key), "metric")
+        val getWeather = api.getWeatherList(lat, lon, "{hourly,minutely,daily}", context.getString(R.string.api_key), "metric")
 
-        return callGetWeather
+        return getWeather
+    }
+
+    fun requestDailyWeatherAPI(lat: String, lon: String): Call<WeatherModel>? {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.openweathermap.org/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        val api = retrofit.create(WeatherAPI::class.java)
+        val getWeather = api.getWeatherList(lat, lon, "{hourly,minutely,current}", context.getString(R.string.api_key), "metric")
+
+        return getWeather
     }
 }
