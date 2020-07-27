@@ -58,6 +58,9 @@ class MainActivity : AppCompatActivity() {
 
         refreshApi()
 
+        refreshButton.setOnClickListener {
+            refreshApi()
+        }
     }
 
     fun refreshApi() {
@@ -141,8 +144,8 @@ class MainActivity : AppCompatActivity() {
     private fun loadDailyData(weather: WeatherModel) {
         println("daily 실행")
         maxminTempTextView.text = "${(weather.daily?.get(0)?.temp?.max)?.toInt()}${getString(R.string.celsius)} / ${(weather.daily?.get(0)?.temp?.min)?.toInt()}${getString(R.string.celsius)}"
-        println("${weather.daily?.size}개")
         // daily table에 daily item view 추가
+        dailyWeatherItemLinear.removeAllViews()
         for (i in 0..6) {
             var dailyWeatherItems = DailyWeatherItems(this)
             var dateTextView = dailyWeatherItems.findViewById<TextView>(R.id.dailyItemDateTextView)

@@ -67,7 +67,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/resetButton"
+        android:id="@+id/refreshButton"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginTop="16dp"
