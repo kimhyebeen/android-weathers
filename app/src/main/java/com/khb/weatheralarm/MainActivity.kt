@@ -1,14 +1,21 @@
 package com.khb.weatheralarm
 
+import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.khb.weatheralarm.helper.LocationHelper
 import com.khb.weatheralarm.helper.NetworkHelper
+import com.khb.weatheralarm.itemview.DailyWeatherItems
 import com.khb.weatheralarm.model.WeatherAPI
 import com.khb.weatheralarm.model.WeatherModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -18,14 +25,17 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.sql.Date
+import java.sql.Timestamp
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 class MainActivity : AppCompatActivity() {
     lateinit var locationHelper: LocationHelper
     lateinit var networkHelper: NetworkHelper
-    var currentWeatherModel: WeatherModel? = null
-//    var hourlyWeatherModel: WeatherModel? = null
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
+    var simpleDateFormat = SimpleDateFormat("MM/dd")
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -46,11 +56,11 @@ class MainActivity : AppCompatActivity() {
         locationHelper = LocationHelper(this)
         networkHelper = NetworkHelper(this)
 
-        refreshAll()
+        refreshApi()
 
     }
 
-    fun refreshAll() {
+    fun refreshApi() {
         GlobalScope.launch {
             // get the location
             withContext(Dispatchers.Default) {
@@ -117,6 +127,8 @@ class MainActivity : AppCompatActivity() {
         }
         Glide.with(this)
             .load("https://openweathermap.org/img/wn/${weather.current!!.weather[0].icon}@2x.png")
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888))
             .into(mainWeatherImageView)
         currentTempTextView.text = "${weather.current!!.temp.toInt()}"
     }
@@ -125,7 +137,25 @@ class MainActivity : AppCompatActivity() {
         println("hourly 실행")
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loadDailyData(weather: WeatherModel) {
         println("daily 실행")
+        maxminTempTextView.text = "${(weather.daily?.get(0)?.temp?.max)?.toInt()}${getString(R.string.celsius)} / ${(weather.daily?.get(0)?.temp?.min)?.toInt()}${getString(R.string.celsius)}"
+        println("${weather.daily?.size}개")
+        // daily table에 daily item view 추가
+        for (i in 0..6) {
+            var dailyWeatherItems = DailyWeatherItems(this)
+            var dateTextView = dailyWeatherItems.findViewById<TextView>(R.id.dailyItemDateTextView)
+            var dailyImageItem = dailyWeatherItems.findViewById<ImageView>(R.id.dailyItemImageView)
+            var dailyMinMaxTemp = dailyWeatherItems.findViewById<TextView>(R.id.dailyItemMaxMinTempTextView)
+            dateTextView.text = "${weather.daily?.get(i)?.dt?.let { simpleDateFormat.format(Date(it*1000L)) }}"
+            Glide.with(this)
+                .load("https://openweathermap.org/img/wn/${weather.daily?.get(i)?.weather?.get(0)?.icon}@2x.png")
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888))
+                .into(dailyImageItem)
+            dailyMinMaxTemp.text = "${(weather.daily?.get(i)?.temp?.day)?.toInt()}${getString(R.string.celsius)}"
+            dailyWeatherItemLinear.addView(dailyWeatherItems)
+        }
     }
 }
