@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var networkHelper: NetworkHelper
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
+
+    @SuppressLint("SimpleDateFormat")
     var dailyDateFormat = SimpleDateFormat("MM/dd")
     var hourlyTimeFormat = SimpleDateFormat("HH시")
 
