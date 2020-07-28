@@ -1,7 +1,8 @@
 package com.khb.weatheralarm.model
 
 data class DailyTableItem(
-    var time: String,
+    var date: String,
     var imageUri: String,
-    var temp: String
+    var maxTemp: String,
+    var minTemp: String
 )

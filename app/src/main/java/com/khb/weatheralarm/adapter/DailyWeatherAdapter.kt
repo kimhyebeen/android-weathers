@@ -10,18 +10,20 @@ import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.khb.weatheralarm.R
+import com.khb.weatheralarm.model.DailyTableItem
 import com.khb.weatheralarm.model.HourlyTableItem
+import kotlinx.android.synthetic.main.item_daily_table.view.*
 import kotlinx.android.synthetic.main.item_hourly_table.view.*
 
-class HourlyWeatherAdapter : RecyclerView.Adapter<HourlyWeatherAdapter.ItemViewHolder>() {
-    var itemList = ArrayList<HourlyTableItem>()
+class DailyWeatherAdapter : RecyclerView.Adapter<DailyWeatherAdapter.ItemViewHolder>() {
+    var itemList = ArrayList<DailyTableItem>()
     lateinit var context: Context
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): HourlyWeatherAdapter.ItemViewHolder {
-        var view = LayoutInflater.from(parent.context).inflate(R.layout.item_hourly_table, parent, false)
+    ): DailyWeatherAdapter.ItemViewHolder {
+        var view = LayoutInflater.from(parent.context).inflate(R.layout.item_daily_table, parent, false)
         this.context = parent.context
 
         return ItemViewHolder(view)
@@ -31,28 +33,30 @@ class HourlyWeatherAdapter : RecyclerView.Adapter<HourlyWeatherAdapter.ItemViewH
         return itemList.size
     }
 
-    override fun onBindViewHolder(holder: HourlyWeatherAdapter.ItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: DailyWeatherAdapter.ItemViewHolder, position: Int) {
         holder.onBind(position)
     }
 
-    fun addItem(items: HourlyTableItem) {
+    fun addItem(items: DailyTableItem) {
         itemList.add(items)
         notifyDataSetChanged()
     }
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val timeTextView = itemView.hourlyItemTimeTextView
-        val hourlyWeatherImage = itemView.hourlyItemImageView
-        val hourlyTempTextView = itemView.hourlyItemTempTextView
+        val dateTextView = itemView.dailyDateTextView
+        val dailyWeatherImage = itemView.dailyWeatherImageView
+        val dailyMaxTempTextView = itemView.dailyMaxTempTextView
+        val dailyMinTempTextView = itemView.dailyMinTempTextView
 
         fun onBind(i: Int) {
-            timeTextView.text = itemList[i].time
+            dateTextView.text = itemList[i].date
             Glide.with(context)
                 .load(itemList[i].imageUri)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888))
-                .into(hourlyWeatherImage)
-            hourlyTempTextView.text = itemList[i].temp
+                .into(dailyWeatherImage)
+            dailyMaxTempTextView.text = itemList[i].maxTemp
+            dailyMinTempTextView.text = itemList[i].minTemp
         }
     }
 
