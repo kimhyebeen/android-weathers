@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_splash"
+    android:background="#3F51B5"
     tools:context=".SplashActivity">
 
     <ImageView
         android:id="@+id/splashLogoImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="450dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_logo_white" />
+        app:srcCompat="@drawable/ic_splash_logo" />
 </androidx.constraintlayout.widget.ConstraintLayout>
