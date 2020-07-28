@@ -40,6 +40,11 @@ class HourlyWeatherAdapter : RecyclerView.Adapter<HourlyWeatherAdapter.ItemViewH
         notifyDataSetChanged()
     }
 
+    fun removeItem(i: Int) {
+        itemList.removeAt(i)
+        notifyItemRemoved(i)
+    }
+
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val timeTextView = itemView.hourlyItemTimeTextView
         val hourlyWeatherImage = itemView.hourlyItemImageView

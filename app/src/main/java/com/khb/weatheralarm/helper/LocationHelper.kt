@@ -20,10 +20,6 @@ class LocationHelper(context: Context) {
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 
-    fun getLocationManager(): LocationManager {
-        return this.locationManager
-    }
-
     fun locationPermissionResult(): Location? {
         if (ActivityCompat.checkSelfPermission(
                 context,

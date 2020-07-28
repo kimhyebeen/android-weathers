@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         refreshButton.setOnClickListener {
             refreshApi()
+            Toast.makeText(this, "새로고침 되었습니다", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -136,6 +137,7 @@ class MainActivity : AppCompatActivity() {
             else if (it>=300) mainConstraintLayout.background = getDrawable(R.drawable.bg_rain)
             else mainConstraintLayout.background = getDrawable(R.drawable.bg_storm)
         }
+
         Glide.with(this)
             .load("https://openweathermap.org/img/wn/${weatherApi.current!!.weather[0].icon}@2x.png")
             .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -146,13 +148,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadHourlyData(weatherApi: WeatherApiModel) {
         println("hourly 실행")
-        hourlyWeatherRecyclerView.removeAllViews()
+        while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)
         // 시간별 날씨 recycler view 적용
         for (i in 0..23) {
             weatherApi.hourly?.get(i)?.let {
                 hourlyWeatherAdapter.addItem(
                     HourlyTableItem(
-                        "${hourlyTimeFormat.format(it.dt!!*1000L)}",
+                        hourlyTimeFormat.format(it.dt!!*1000L),
                         "https://openweathermap.org/img/wn/${it.weather[0].icon}@2x.png",
                         "${(it.temp).toInt()}${getString(R.string.celsius)}"
                     )
@@ -167,11 +169,12 @@ class MainActivity : AppCompatActivity() {
         weatherApi.daily?.get(0)?.let {
             maxminTempTextView.text = "${(it.temp.max).toInt()}${getString(R.string.celsius)} / ${(it.temp.min).toInt()}${getString(R.string.celsius)}"
         }
+        while(dailyWeatherAdapter.itemCount>0) dailyWeatherAdapter.removeItem(0)
         for (i in 1..7) {
             weatherApi.daily?.get(i)?.let {
                 dailyWeatherAdapter.addItem(
                     DailyTableItem(
-                        "${dailyDateFormat.format(it.dt!!*1000L)}",
+                        dailyDateFormat.format(it.dt!!*1000L),
                         "https://openweathermap.org/img/wn/${it.weather[0].icon}@2x.png",
                         "${(it.temp.max).toInt()}",
                         "${(it.temp.min).toInt()}"

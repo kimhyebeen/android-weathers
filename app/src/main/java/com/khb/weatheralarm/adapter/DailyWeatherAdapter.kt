@@ -11,9 +11,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.khb.weatheralarm.R
 import com.khb.weatheralarm.model.DailyTableItem
-import com.khb.weatheralarm.model.HourlyTableItem
 import kotlinx.android.synthetic.main.item_daily_table.view.*
-import kotlinx.android.synthetic.main.item_hourly_table.view.*
 
 class DailyWeatherAdapter : RecyclerView.Adapter<DailyWeatherAdapter.ItemViewHolder>() {
     var itemList = ArrayList<DailyTableItem>()
@@ -40,6 +38,11 @@ class DailyWeatherAdapter : RecyclerView.Adapter<DailyWeatherAdapter.ItemViewHol
     fun addItem(items: DailyTableItem) {
         itemList.add(items)
         notifyDataSetChanged()
+    }
+
+    fun removeItem(i: Int) {
+        itemList.removeAt(i)
+        notifyItemRemoved(i)
     }
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
