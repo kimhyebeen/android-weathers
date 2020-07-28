@@ -1,8 +1,8 @@
 package com.khb.weatheralarm.model
 
-data class DailyItems(
+data class WeatherDailyItems(
     var dt: Long,
-    var temp: DailyTemp,
+    var temp: WeatherDailyTemp,
     var humidity: Int,
     var weather: ArrayList<WeatherSubItem>
 )

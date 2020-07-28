@@ -24,6 +24,6 @@ public class DailyWeatherItems extends LinearLayout {
 
     private void init(Context context) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        layoutInflater.inflate(R.layout.item_daily_table, this, true);
+        layoutInflater.inflate(R.layout.item_hourly_table, this, true);
     }
 }

@@ -1,10 +1,8 @@
 package com.khb.weatheralarm.model
 
-import com.khb.weatheralarm.model.WeatherModel
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
-import retrofit2.http.QueryMap
 
 
 interface WeatherAPI {
@@ -15,5 +13,5 @@ interface WeatherAPI {
         @Query("exclude") exclude: String,
         @Query("appid") appid: String,
         @Query("units") units: String
-    ): Call<WeatherModel>
+    ): Call<WeatherApiModel>
 }
