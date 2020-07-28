@@ -33,8 +33,10 @@ class MainActivity : AppCompatActivity() {
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
 
+    // @SuppressLint("NewApi")는 해당 프로젝트의 설정 된 minSdkVersion 이후에 나온 API를 사용할때  warning을 없애고 개발자가 해당 APi를 사용할 수 있게 합니다.
     @SuppressLint("SimpleDateFormat")
     var dailyDateFormat = SimpleDateFormat("MM/dd")
+    @SuppressLint("SimpleDateFormat")
     var hourlyTimeFormat = SimpleDateFormat("HH시")
 
     var hourlyWeatherAdapter = HourlyWeatherAdapter()
