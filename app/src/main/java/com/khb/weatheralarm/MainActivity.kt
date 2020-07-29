@@ -1,6 +1,7 @@
 package com.khb.weatheralarm
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -22,16 +23,15 @@ import com.khb.weatheralarm.model.HourlyTableItem
 import com.khb.weatheralarm.model.WeatherApiModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.SimpleDateFormat
 
 class MainActivity : AppCompatActivity() {
     lateinit var locationHelper: LocationHelper
     lateinit var networkHelper: NetworkHelper
+
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
+    val DARK_COLOR = Color.parseColor("#505050")
 
     // @SuppressLint("NewApi")는 해당 프로젝트의 설정 된 minSdkVersion 이후에 나온 API를 사용할때  warning을 없애고 개발자가 해당 APi를 사용할 수 있게 합니다.
     @SuppressLint("SimpleDateFormat")
@@ -41,6 +41,10 @@ class MainActivity : AppCompatActivity() {
 
     var hourlyWeatherAdapter = HourlyWeatherAdapter()
     var dailyWeatherAdapter = DailyWeatherAdapter()
+
+    lateinit var setHourlyData : (WeatherApiModel) -> Unit
+    lateinit var setCurrentData : (WeatherApiModel) -> Unit
+    lateinit var setDailyData : (WeatherApiModel) -> Unit
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -57,6 +61,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        settingApiData()
 
         locationHelper = LocationHelper(this)
         networkHelper = NetworkHelper(this)
@@ -87,43 +93,13 @@ class MainActivity : AppCompatActivity() {
             location?.let {
                 launch(Dispatchers.IO) { // current
                     // 원래는 파라미터에 it.latitude.toString()이랑 it.longitude.toString()을 넣어줘야 함.
-                    networkHelper.requestCurrentWeatherAPI("37.305443", "126.817403")
-                        ?.enqueue(object : Callback<WeatherApiModel> {
-                            override fun onFailure(call: Call<WeatherApiModel>, t: Throwable) {
-                                println("current 실패 : $t")
-                            }
-
-                            override fun onResponse(call: Call<WeatherApiModel>, response: Response<WeatherApiModel>) {
-                                println("current 성공 : ${response.body().toString()}")
-                                response.body()?.let { loadCurrentData(it) }
-                            }
-                        })
+                    networkHelper.requestCurrentWeatherAPI("37.305443", "126.817403", setCurrentData)
                 }
-                launch(Dispatchers.IO) {
-                    networkHelper.requestHourlyWeatherAPI("37.305443", "126.817403")
-                        ?.enqueue(object : Callback<WeatherApiModel> {
-                            override fun onFailure(call: Call<WeatherApiModel>, t: Throwable) {
-                                println("hourly 실패 : $t")
-                            }
-
-                            override fun onResponse(call: Call<WeatherApiModel>, response: Response<WeatherApiModel>) {
-                                println("hourly 성공 : ${response.body().toString()}")
-                                response.body()?.let { loadHourlyData(it) }
-                            }
-                        })
+                launch(Dispatchers.IO) { // hourly
+                    networkHelper.requestHourlyWeatherAPI("37.305443", "126.817403", setHourlyData)
                 }
-                launch(Dispatchers.IO) {
-                    networkHelper.requestDailyWeatherAPI("37.305443", "126.817403")
-                        ?.enqueue(object : Callback<WeatherApiModel> {
-                            override fun onFailure(call: Call<WeatherApiModel>, t: Throwable) {
-                                println("daily 실패 : $t")
-                            }
-
-                            override fun onResponse(call: Call<WeatherApiModel>, response: Response<WeatherApiModel>) {
-                                println("daily 성공 : ${response.body().toString()}")
-                                response.body()?.let { loadDailyData(it) }
-                            }
-                        })
+                launch(Dispatchers.IO) { // daily
+                    networkHelper.requestDailyWeatherAPI("37.305443", "126.817403", setDailyData)
                 }
             } ?: launch(Dispatchers.Main) {
                 Toast.makeText(applicationContext, "There is no location information.", Toast.LENGTH_SHORT).show()
@@ -131,61 +107,77 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadCurrentData(weatherApi: WeatherApiModel) {
-        println("current 실행")
-        weatherApi.current!!.weather[0].id.let {
-            if (it>800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
-            else if (it==800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clear)
-            else if (it>=700) mainConstraintLayout.background = getDrawable(R.drawable.bg_atmosphere)
-            else if (it>=600) mainConstraintLayout.background = getDrawable(R.drawable.bg_snow)
-            else if (it>=300) mainConstraintLayout.background = getDrawable(R.drawable.bg_rain)
-            else mainConstraintLayout.background = getDrawable(R.drawable.bg_storm)
-        }
-
-        Glide.with(this)
-            .load("https://openweathermap.org/img/wn/${weatherApi.current!!.weather[0].icon}@2x.png")
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888))
-            .into(mainWeatherImageView)
-        currentTempTextView.text = "${weatherApi.current!!.temp.toInt()}"
-    }
-
-    private fun loadHourlyData(weatherApi: WeatherApiModel) {
-        println("hourly 실행")
-        while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)
-        // 시간별 날씨 recycler view 적용
-        for (i in 0..23) {
-            weatherApi.hourly?.get(i)?.let {
-                hourlyWeatherAdapter.addItem(
-                    HourlyTableItem(
-                        hourlyTimeFormat.format(it.dt!!*1000L),
-                        "https://openweathermap.org/img/wn/${it.weather[0].icon}@2x.png",
-                        "${(it.temp).toInt()}${getString(R.string.celsius)}"
-                    )
-                )
-            }
-        }
-    }
-
     @SuppressLint("SetTextI18n")
-    private fun loadDailyData(weatherApi: WeatherApiModel) {
-        println("daily 실행")
-        weatherApi.daily?.get(0)?.let {
-            maxminTempTextView.text = "${(it.temp.max).toInt()}${getString(R.string.celsius)} / ${(it.temp.min).toInt()}${getString(R.string.celsius)}"
-        }
-        while(dailyWeatherAdapter.itemCount>0) dailyWeatherAdapter.removeItem(0)
-        for (i in 1..7) {
-            weatherApi.daily?.get(i)?.let {
-                dailyWeatherAdapter.addItem(
-                    DailyTableItem(
-                        dailyDateFormat.format(it.dt!!*1000L),
-                        "https://openweathermap.org/img/wn/${it.weather[0].icon}@2x.png",
-                        "${(it.temp.max).toInt()}",
-                        "${(it.temp.min).toInt()}"
+    fun settingApiData() {
+        setHourlyData = { model ->
+            println("hourly 실행")
+            while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)
+            // 시간별 날씨 recycler view 적용
+            for (i in 0..23) {
+                model.hourly?.get(i)?.let { item ->
+                    hourlyWeatherAdapter.addItem(
+                        HourlyTableItem(
+                            hourlyTimeFormat.format(item.dt!!*1000L),
+                            "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
+                            "${(item.temp).toInt()}${getString(R.string.celsius)}"
+                        )
                     )
-                )
+                }
             }
         }
-        // 날짜별 날씨 recycler view 적용
+
+        setCurrentData = { model ->
+            println("current 실행")
+            model.current!!.weather[0].id.let {
+                if (it>800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
+                else if (it==800) {
+                    mainConstraintLayout.background = getDrawable(R.drawable.bg_clear)
+                    currentTempTextView.setTextColor(DARK_COLOR)
+                    celsiusTextView.setTextColor(DARK_COLOR)
+                    tempText.setTextColor(DARK_COLOR)
+                    maxminTempTextView.setTextColor(DARK_COLOR)
+                } else if (it>=700) mainConstraintLayout.background = getDrawable(R.drawable.bg_atmosphere)
+                else if (it>=600) {
+                    mainConstraintLayout.background = getDrawable(R.drawable.bg_snow)
+                    currentTempTextView.setTextColor(DARK_COLOR)
+                    celsiusTextView.setTextColor(DARK_COLOR)
+                    tempText.setTextColor(DARK_COLOR)
+                    maxminTempTextView.setTextColor(DARK_COLOR)
+                } else if (it>=300) {
+                    mainConstraintLayout.background = getDrawable(R.drawable.bg_rain)
+                    currentTempTextView.setTextColor(DARK_COLOR)
+                    celsiusTextView.setTextColor(DARK_COLOR)
+                    tempText.setTextColor(DARK_COLOR)
+                    maxminTempTextView.setTextColor(DARK_COLOR)
+                } else mainConstraintLayout.background = getDrawable(R.drawable.bg_storm)
+            }
+
+            Glide.with(this)
+                .load("https://openweathermap.org/img/wn/${model.current!!.weather[0].icon}@2x.png")
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888))
+                .into(mainWeatherImageView)
+            currentTempTextView.text = "${model.current!!.temp.toInt()}"
+        }
+
+        setDailyData = { model ->
+            println("daily 실행")
+            model.daily?.get(0)?.let { item ->
+                maxminTempTextView.text = "${(item.temp.max).toInt()}${getString(R.string.celsius)} / ${(item.temp.min).toInt()}${getString(R.string.celsius)}"
+            }
+            while(dailyWeatherAdapter.itemCount>0) dailyWeatherAdapter.removeItem(0)
+            for (i in 1..7) {
+                model.daily?.get(i)?.let { item ->
+                    dailyWeatherAdapter.addItem(
+                        DailyTableItem(
+                            dailyDateFormat.format(item.dt!!*1000L),
+                            "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
+                            "${(item.temp.max).toInt()}",
+                            "${(item.temp.min).toInt()}"
+                        )
+                    )
+                }
+            }
+        }
     }
 }

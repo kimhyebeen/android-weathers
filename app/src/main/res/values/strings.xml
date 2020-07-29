@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">날씨알리미</string>
+    <string name="temp">00</string>
+    <string name="celsius">℃</string>
+    <string name="maxmin">최고 / 최저</string>
+
+    <!-- item_hourly_table -->
+    <string name="date">07/27</string>
+    <string name="time">15시</string>
+
+    <!-- api url string -->
+    <string name="base_url">https://api.openweathermap.org/</string>
+    <string name="exclude_hourly">"{current,minutely,daily}"</string>
+    <string name="exclude_current">"{hourly,minutely,daily}"</string>
+    <string name="exclude_daily">"{current,minutely,hourly}"</string>
+    <string name="units">metric</string>
+</resources>
