@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/temp"
-                android:textColor="#4C4C4C"
+                android:textColor="#eeeeee"
                 android:textSize="60sp" />
 
             <TextView
@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/maxmin"
-            android:textColor="#dddddd" />
+            android:textColor="#eeeeee" />
 
         <TextView
             android:id="@+id/maxminTempTextView"
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:text="@string/temp"
-            android:textColor="#dddddd"
+            android:textColor="#eeeeee"
             android:textSize="21sp" />
 
     </LinearLayout>

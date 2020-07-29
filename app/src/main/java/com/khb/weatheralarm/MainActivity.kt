@@ -132,23 +132,14 @@ class MainActivity : AppCompatActivity() {
                 if (it>800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
                 else if (it==800) {
                     mainConstraintLayout.background = getDrawable(R.drawable.bg_clear)
-                    currentTempTextView.setTextColor(DARK_COLOR)
-                    celsiusTextView.setTextColor(DARK_COLOR)
-                    tempText.setTextColor(DARK_COLOR)
-                    maxminTempTextView.setTextColor(DARK_COLOR)
+                    colorToDart()
                 } else if (it>=700) mainConstraintLayout.background = getDrawable(R.drawable.bg_atmosphere)
                 else if (it>=600) {
                     mainConstraintLayout.background = getDrawable(R.drawable.bg_snow)
-                    currentTempTextView.setTextColor(DARK_COLOR)
-                    celsiusTextView.setTextColor(DARK_COLOR)
-                    tempText.setTextColor(DARK_COLOR)
-                    maxminTempTextView.setTextColor(DARK_COLOR)
+                    colorToDart()
                 } else if (it>=300) {
                     mainConstraintLayout.background = getDrawable(R.drawable.bg_rain)
-                    currentTempTextView.setTextColor(DARK_COLOR)
-                    celsiusTextView.setTextColor(DARK_COLOR)
-                    tempText.setTextColor(DARK_COLOR)
-                    maxminTempTextView.setTextColor(DARK_COLOR)
+                    colorToDart()
                 } else mainConstraintLayout.background = getDrawable(R.drawable.bg_storm)
             }
 
@@ -179,5 +170,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun colorToDart() {
+        currentTempTextView.setTextColor(DARK_COLOR)
+        celsiusTextView.setTextColor(DARK_COLOR)
+        tempText.setTextColor(DARK_COLOR)
+        maxminTempTextView.setTextColor(DARK_COLOR)
     }
 }
