@@ -1,4 +1,4 @@
-package com.khb.weatheralarm.databaseitem
+package com.khb.weatheralarm.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -7,7 +7,7 @@ import com.khb.weatheralarm.api_model.Daily
 import com.khb.weatheralarm.api_model.HourlyAndCurrent
 
 @Entity
-data class Weather (
+data class WeatherEntity (
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "current") val currentWeather: HourlyAndCurrent?,
     @ColumnInfo(name = "hourly") val hourlyWeather: ArrayList<HourlyAndCurrent>?,

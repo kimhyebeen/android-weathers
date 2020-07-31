@@ -1,4 +1,4 @@
-package com.khb.weatheralarm.list_item
+package com.khb.weatheralarm.table_model
 
 data class DailyTable(
     var date: String,

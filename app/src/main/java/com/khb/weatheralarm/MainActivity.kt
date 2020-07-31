@@ -18,8 +18,8 @@ import com.khb.weatheralarm.adapter.DailyWeatherAdapter
 import com.khb.weatheralarm.adapter.HourlyWeatherAdapter
 import com.khb.weatheralarm.helper.LocationHelper
 import com.khb.weatheralarm.helper.NetworkHelper
-import com.khb.weatheralarm.list_item.DailyTable
-import com.khb.weatheralarm.list_item.HourlyTable
+import com.khb.weatheralarm.table_model.DailyTable
+import com.khb.weatheralarm.table_model.HourlyTable
 import com.khb.weatheralarm.api_model.MainApi
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*

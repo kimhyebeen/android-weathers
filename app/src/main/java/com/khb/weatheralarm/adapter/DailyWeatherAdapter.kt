@@ -10,7 +10,7 @@ import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.khb.weatheralarm.R
-import com.khb.weatheralarm.list_item.DailyTable
+import com.khb.weatheralarm.table_model.DailyTable
 import kotlinx.android.synthetic.main.item_daily_table.view.*
 
 class DailyWeatherAdapter : RecyclerView.Adapter<DailyWeatherAdapter.ItemViewHolder>() {
