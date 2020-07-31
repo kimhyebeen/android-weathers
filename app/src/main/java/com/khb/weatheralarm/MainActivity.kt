@@ -18,9 +18,9 @@ import com.khb.weatheralarm.adapter.DailyWeatherAdapter
 import com.khb.weatheralarm.adapter.HourlyWeatherAdapter
 import com.khb.weatheralarm.helper.LocationHelper
 import com.khb.weatheralarm.helper.NetworkHelper
-import com.khb.weatheralarm.model.DailyTableItem
-import com.khb.weatheralarm.model.HourlyTableItem
-import com.khb.weatheralarm.model.WeatherApiModel
+import com.khb.weatheralarm.list_item.DailyTable
+import com.khb.weatheralarm.list_item.HourlyTable
+import com.khb.weatheralarm.api_model.MainApi
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -42,9 +42,9 @@ class MainActivity : AppCompatActivity() {
     var hourlyWeatherAdapter = HourlyWeatherAdapter()
     var dailyWeatherAdapter = DailyWeatherAdapter()
 
-    lateinit var setHourlyData : (WeatherApiModel) -> Unit
-    lateinit var setCurrentData : (WeatherApiModel) -> Unit
-    lateinit var setDailyData : (WeatherApiModel) -> Unit
+    lateinit var setHourlyData : (MainApi) -> Unit
+    lateinit var setCurrentData : (MainApi) -> Unit
+    lateinit var setDailyData : (MainApi) -> Unit
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -116,8 +116,8 @@ class MainActivity : AppCompatActivity() {
             for (i in 0..23) {
                 model.hourly?.get(i)?.let { item ->
                     hourlyWeatherAdapter.addItem(
-                        HourlyTableItem(
-                            hourlyTimeFormat.format(item.dt!!*1000L),
+                        HourlyTable(
+                            hourlyTimeFormat.format(item.dt!! * 1000L),
                             "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
                             "${(item.temp).toInt()}${getString(R.string.celsius)}"
                         )
@@ -160,8 +160,8 @@ class MainActivity : AppCompatActivity() {
             for (i in 1..7) {
                 model.daily?.get(i)?.let { item ->
                     dailyWeatherAdapter.addItem(
-                        DailyTableItem(
-                            dailyDateFormat.format(item.dt!!*1000L),
+                        DailyTable(
+                            dailyDateFormat.format(item.dt!! * 1000L),
                             "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
                             "${(item.temp.max).toInt()}",
                             "${(item.temp.min).toInt()}"

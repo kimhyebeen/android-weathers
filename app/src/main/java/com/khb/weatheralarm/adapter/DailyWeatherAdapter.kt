@@ -10,11 +10,11 @@ import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.khb.weatheralarm.R
-import com.khb.weatheralarm.model.DailyTableItem
+import com.khb.weatheralarm.list_item.DailyTable
 import kotlinx.android.synthetic.main.item_daily_table.view.*
 
 class DailyWeatherAdapter : RecyclerView.Adapter<DailyWeatherAdapter.ItemViewHolder>() {
-    var itemList = ArrayList<DailyTableItem>()
+    var itemList = ArrayList<DailyTable>()
     lateinit var context: Context
 
     override fun onCreateViewHolder(
@@ -35,7 +35,7 @@ class DailyWeatherAdapter : RecyclerView.Adapter<DailyWeatherAdapter.ItemViewHol
         holder.onBind(position)
     }
 
-    fun addItem(items: DailyTableItem) {
+    fun addItem(items: DailyTable) {
         itemList.add(items)
         notifyDataSetChanged()
     }

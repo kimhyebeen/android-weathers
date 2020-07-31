@@ -1,6 +1,6 @@
-package com.khb.weatheralarm.model
+package com.khb.weatheralarm.list_item
 
-data class DailyTableItem(
+data class DailyTable(
     var date: String,
     var imageUri: String,
     var maxTemp: String,

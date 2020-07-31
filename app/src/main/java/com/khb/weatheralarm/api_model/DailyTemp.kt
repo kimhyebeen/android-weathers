@@ -1,6 +1,6 @@
-package com.khb.weatheralarm.model
+package com.khb.weatheralarm.api_model
 
-data class WeatherDailyTemp(
+data class DailyTemp(
     var day: Double,
     var min: Double,
     var max: Double

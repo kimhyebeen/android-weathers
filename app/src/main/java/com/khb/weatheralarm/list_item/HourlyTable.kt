@@ -1,6 +1,6 @@
-package com.khb.weatheralarm.model
+package com.khb.weatheralarm.list_item
 
-data class HourlyTableItem(
+data class HourlyTable(
     var time: String,
     var imageUri: String,
     var temp: String

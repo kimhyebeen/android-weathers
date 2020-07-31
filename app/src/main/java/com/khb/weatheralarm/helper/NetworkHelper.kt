@@ -3,8 +3,8 @@ package com.khb.weatheralarm.helper
 import android.content.Context
 import com.khb.weatheralarm.R
 import com.khb.weatheralarm.StringKeySet
-import com.khb.weatheralarm.model.WeatherAPI
-import com.khb.weatheralarm.model.WeatherApiModel
+import com.khb.weatheralarm.WeatherAPI
+import com.khb.weatheralarm.api_model.MainApi
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -29,15 +29,15 @@ class NetworkHelper(context: Context) {
     fun requestHourlyWeatherAPI(
         lat: String,
         lon: String,
-        hourlyData: (WeatherApiModel) -> Unit
+        hourlyData: (MainApi) -> Unit
     ) {
         weatherAPI.getWeatherList(lat, lon, context.getString(R.string.exclude_hourly), StringKeySet.API_KEY, context.getString(R.string.units))
-            ?.enqueue(object : Callback<WeatherApiModel> {
-            override fun onFailure(call: Call<WeatherApiModel>, t: Throwable) {
+            ?.enqueue(object : Callback<MainApi> {
+            override fun onFailure(call: Call<MainApi>, t: Throwable) {
                 println("hourly 실패 : $t")
             }
 
-            override fun onResponse(call: Call<WeatherApiModel>, response: Response<WeatherApiModel>) {
+            override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                 println("hourly 성공 : ${response.body().toString()}")
                 response.body()?.let { hourlyData(it) }
             }
@@ -47,15 +47,15 @@ class NetworkHelper(context: Context) {
     fun requestCurrentWeatherAPI(
         lat: String,
         lon: String,
-        currentData: (WeatherApiModel) -> Unit
+        currentData: (MainApi) -> Unit
     ) {
         weatherAPI.getWeatherList(lat, lon, context.getString(R.string.exclude_current), StringKeySet.API_KEY, context.getString(R.string.units))
-            ?.enqueue(object : Callback<WeatherApiModel> {
-                override fun onFailure(call: Call<WeatherApiModel>, t: Throwable) {
+            ?.enqueue(object : Callback<MainApi> {
+                override fun onFailure(call: Call<MainApi>, t: Throwable) {
                     println("current 실패 : $t")
                 }
 
-                override fun onResponse(call: Call<WeatherApiModel>, response: Response<WeatherApiModel>) {
+                override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("current 성공 : ${response.body().toString()}")
                     response.body()?.let { currentData(it) }
                 }
@@ -65,15 +65,15 @@ class NetworkHelper(context: Context) {
     fun requestDailyWeatherAPI(
         lat: String,
         lon: String,
-        dailyData: (WeatherApiModel) -> Unit
+        dailyData: (MainApi) -> Unit
     ) {
         weatherAPI.getWeatherList(lat, lon, context.getString(R.string.exclude_daily), StringKeySet.API_KEY, context.getString(R.string.units))
-            ?.enqueue(object : Callback<WeatherApiModel> {
-                override fun onFailure(call: Call<WeatherApiModel>, t: Throwable) {
+            ?.enqueue(object : Callback<MainApi> {
+                override fun onFailure(call: Call<MainApi>, t: Throwable) {
                     println("daily 실패 : $t")
                 }
 
-                override fun onResponse(call: Call<WeatherApiModel>, response: Response<WeatherApiModel>) {
+                override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("daily 성공 : ${response.body().toString()}")
                     response.body()?.let { dailyData(it) }
                 }

@@ -1,6 +1,6 @@
-package com.khb.weatheralarm.model
+package com.khb.weatheralarm.api_model
 
-data class WeatherSubItem (
+data class WeatherOfHourlyAndCurrent (
     var id: Int,
     var main: String,
     var description: String,
