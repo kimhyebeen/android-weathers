@@ -21,6 +21,7 @@ import com.khb.weatheralarm.helper.NetworkHelper
 import com.khb.weatheralarm.table_model.DailyTable
 import com.khb.weatheralarm.table_model.HourlyTable
 import com.khb.weatheralarm.api_model.MainApi
+import com.khb.weatheralarm.helper.DatabaseHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat
 class MainActivity : AppCompatActivity() {
     lateinit var locationHelper: LocationHelper
     lateinit var networkHelper: NetworkHelper
+    lateinit var databaseHelper: DatabaseHelper
 
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
@@ -66,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         locationHelper = LocationHelper(this)
         networkHelper = NetworkHelper(this)
+        databaseHelper = DatabaseHelper.getInstance(this)!!
 
         hourlyWeatherRecyclerView.adapter = hourlyWeatherAdapter
         hourlyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)

@@ -8,7 +8,7 @@ import com.khb.weatheralarm.api_model.HourlyAndCurrent
 
 @Entity
 data class WeatherEntity (
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true) val uid: Int,
     @ColumnInfo(name = "current") val currentWeather: HourlyAndCurrent?,
     @ColumnInfo(name = "hourly") val hourlyWeather: ArrayList<HourlyAndCurrent>?,
     @ColumnInfo(name = "daily") val dailyWeather: ArrayList<Daily>?
