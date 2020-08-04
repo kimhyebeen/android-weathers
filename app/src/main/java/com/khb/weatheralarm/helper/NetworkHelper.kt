@@ -4,6 +4,8 @@ import android.content.Context
 import com.khb.weatheralarm.R
 import com.khb.weatheralarm.StringKeySet
 import com.khb.weatheralarm.WeatherAPI
+import com.khb.weatheralarm.api_model.Daily
+import com.khb.weatheralarm.api_model.HourlyAndCurrent
 import com.khb.weatheralarm.api_model.MainApi
 import retrofit2.Call
 import retrofit2.Callback
@@ -13,9 +15,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class NetworkHelper(context: Context) {
     val context: Context
+//    val databaseHelper: DatabaseHelper
     var retrofit: Retrofit
     var weatherAPI: WeatherAPI
-
 
     init {
         this.context = context
@@ -24,12 +26,13 @@ class NetworkHelper(context: Context) {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         this.weatherAPI = retrofit.create(WeatherAPI::class.java)
+//        this.databaseHelper = DatabaseHelper.getInstance(context)
     }
 
     fun requestHourlyWeatherAPI(
         lat: String,
         lon: String,
-        hourlyData: (MainApi) -> Unit
+        hourlyData: (ArrayList<HourlyAndCurrent>) -> Unit
     ) {
         weatherAPI.getWeatherList(lat, lon, context.getString(R.string.exclude_hourly), StringKeySet.API_KEY, context.getString(R.string.units))
             ?.enqueue(object : Callback<MainApi> {
@@ -39,7 +42,11 @@ class NetworkHelper(context: Context) {
 
             override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                 println("hourly 성공 : ${response.body().toString()}")
-                response.body()?.let { hourlyData(it) }
+//                var hourly = databaseHelper.weatherDao().getWeather()[0]
+//                hourly.hourly = response.body()?.hourly!!
+//                databaseHelper.weatherDao().updateAll(hourly)
+
+                response.body()?.let { hourlyData(it.hourly!!) }
             }
         })
     }
@@ -47,7 +54,7 @@ class NetworkHelper(context: Context) {
     fun requestCurrentWeatherAPI(
         lat: String,
         lon: String,
-        currentData: (MainApi) -> Unit
+        currentData: (HourlyAndCurrent) -> Unit
     ) {
         weatherAPI.getWeatherList(lat, lon, context.getString(R.string.exclude_current), StringKeySet.API_KEY, context.getString(R.string.units))
             ?.enqueue(object : Callback<MainApi> {
@@ -57,7 +64,11 @@ class NetworkHelper(context: Context) {
 
                 override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("current 성공 : ${response.body().toString()}")
-                    response.body()?.let { currentData(it) }
+//                    var current = databaseHelper.weatherDao().getWeather()[0]
+//                    current.current = response.body()?.current!!
+//                    databaseHelper.weatherDao().updateAll(current)
+
+                    response.body()?.let { currentData(it.current!!) }
                 }
             })
     }
@@ -65,7 +76,7 @@ class NetworkHelper(context: Context) {
     fun requestDailyWeatherAPI(
         lat: String,
         lon: String,
-        dailyData: (MainApi) -> Unit
+        dailyData: (ArrayList<Daily>) -> Unit
     ) {
         weatherAPI.getWeatherList(lat, lon, context.getString(R.string.exclude_daily), StringKeySet.API_KEY, context.getString(R.string.units))
             ?.enqueue(object : Callback<MainApi> {
@@ -75,7 +86,11 @@ class NetworkHelper(context: Context) {
 
                 override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("daily 성공 : ${response.body().toString()}")
-                    response.body()?.let { dailyData(it) }
+//                    var daily = databaseHelper.weatherDao().getWeather()[0]
+//                    daily.daily = response.body()?.daily
+//                    databaseHelper.weatherDao().updateAll(daily)
+
+                    response.body()?.let { dailyData(it.daily!!) }
                 }
             })
     }

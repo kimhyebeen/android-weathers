@@ -16,12 +16,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.khb.weatheralarm.adapter.DailyWeatherAdapter
 import com.khb.weatheralarm.adapter.HourlyWeatherAdapter
+import com.khb.weatheralarm.api_model.Daily
+import com.khb.weatheralarm.api_model.HourlyAndCurrent
 import com.khb.weatheralarm.helper.LocationHelper
 import com.khb.weatheralarm.helper.NetworkHelper
 import com.khb.weatheralarm.table_model.DailyTable
 import com.khb.weatheralarm.table_model.HourlyTable
-import com.khb.weatheralarm.api_model.MainApi
-import com.khb.weatheralarm.helper.DatabaseHelper
+//import com.khb.weatheralarm.database.WeatherEntity
+//import com.khb.weatheralarm.helper.DatabaseHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -29,7 +31,7 @@ import java.text.SimpleDateFormat
 class MainActivity : AppCompatActivity() {
     lateinit var locationHelper: LocationHelper
     lateinit var networkHelper: NetworkHelper
-    lateinit var databaseHelper: DatabaseHelper
+//    lateinit var databaseHelper: DatabaseHelper
 
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
@@ -44,9 +46,9 @@ class MainActivity : AppCompatActivity() {
     var hourlyWeatherAdapter = HourlyWeatherAdapter()
     var dailyWeatherAdapter = DailyWeatherAdapter()
 
-    lateinit var setHourlyData : (MainApi) -> Unit
-    lateinit var setCurrentData : (MainApi) -> Unit
-    lateinit var setDailyData : (MainApi) -> Unit
+    lateinit var setHourlyData : (ArrayList<HourlyAndCurrent>) -> Unit
+    lateinit var setCurrentData : (HourlyAndCurrent) -> Unit
+    lateinit var setDailyData : (ArrayList<Daily>) -> Unit
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -64,11 +66,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        settingApiData()
+        setDataFunction()
 
         locationHelper = LocationHelper(this)
         networkHelper = NetworkHelper(this)
-        databaseHelper = DatabaseHelper.getInstance(this)!!
 
         hourlyWeatherRecyclerView.adapter = hourlyWeatherAdapter
         hourlyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -77,15 +78,23 @@ class MainActivity : AppCompatActivity() {
         dailyWeatherRecyclerView.adapter = dailyWeatherAdapter
         dailyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        refreshApi()
+        GlobalScope.launch(Dispatchers.IO) {
+//            databaseHelper = DatabaseHelper.getInstance(applicationContext)
+//            if (databaseHelper.weatherDao().getWeather().size == 0) databaseHelper.weatherDao().insert(
+//                WeatherEntity(1, null, null, null, null)
+//            )
+//            println("데이터베이스 : ${databaseHelper.weatherDao().getWeather()}")
+
+            getWeatherApi()
+        }
 
         refreshButton.setOnClickListener {
-            refreshApi()
+            getWeatherApi()
             Toast.makeText(this, "새로고침 되었습니다", Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun refreshApi() {
+    fun getWeatherApi() {
         GlobalScope.launch {
             // get the location
             withContext(Dispatchers.Default) {
@@ -111,13 +120,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    fun settingApiData() {
+    fun setDataFunction() {
         setHourlyData = { model ->
             println("hourly 실행")
             while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)
             // 시간별 날씨 recycler view 적용
-            for (i in 0..23) {
-                model.hourly?.get(i)?.let { item ->
+            model.get(0)?.let { item ->
+                hourlyWeatherAdapter.addItem(
+                    HourlyTable(
+                        "지금",
+                        "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
+                        "${(item.temp).toInt()}${getString(R.string.celsius)}"
+                    )
+                )
+            }
+            for (i in 1..23) {
+                model.get(i)?.let { item ->
                     hourlyWeatherAdapter.addItem(
                         HourlyTable(
                             hourlyTimeFormat.format(item.dt!! * 1000L),
@@ -130,8 +148,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         setCurrentData = { model ->
+
+//            databaseHelper.weatherDao().insert(WeatherEntity(0, model.current, null, null))
+//            println("데이터베이스 : ${databaseHelper.weatherDao().getAll()}")
+
             println("current 실행")
-            model.current!!.weather[0].id.let {
+            model.weather[0].id.let {
                 if (it>800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
                 else if (it==800) {
                     mainConstraintLayout.background = getDrawable(R.drawable.bg_clear)
@@ -147,21 +169,21 @@ class MainActivity : AppCompatActivity() {
             }
 
             Glide.with(this)
-                .load("https://openweathermap.org/img/wn/${model.current!!.weather[0].icon}@2x.png")
+                .load("https://openweathermap.org/img/wn/${model.weather[0].icon}@2x.png")
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888))
                 .into(mainWeatherImageView)
-            currentTempTextView.text = "${model.current!!.temp.toInt()}"
+            currentTempTextView.text = "${model.temp.toInt()}"
         }
 
         setDailyData = { model ->
             println("daily 실행")
-            model.daily?.get(0)?.let { item ->
+            model.get(0)?.let { item ->
                 maxminTempTextView.text = "${(item.temp.max).toInt()}${getString(R.string.celsius)} / ${(item.temp.min).toInt()}${getString(R.string.celsius)}"
             }
             while(dailyWeatherAdapter.itemCount>0) dailyWeatherAdapter.removeItem(0)
             for (i in 1..7) {
-                model.daily?.get(i)?.let { item ->
+                model.get(i)?.let { item ->
                     dailyWeatherAdapter.addItem(
                         DailyTable(
                             dailyDateFormat.format(item.dt!! * 1000L),
