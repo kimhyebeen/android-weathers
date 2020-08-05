@@ -18,6 +18,7 @@ import com.khb.weatheralarm.adapter.DailyWeatherAdapter
 import com.khb.weatheralarm.adapter.HourlyWeatherAdapter
 import com.khb.weatheralarm.api_model.Daily
 import com.khb.weatheralarm.api_model.HourlyAndCurrent
+import com.khb.weatheralarm.helper.DatabaseHelper
 import com.khb.weatheralarm.helper.LocationHelper
 import com.khb.weatheralarm.helper.NetworkHelper
 import com.khb.weatheralarm.table_model.DailyTable
@@ -31,11 +32,12 @@ import java.text.SimpleDateFormat
 class MainActivity : AppCompatActivity() {
     lateinit var locationHelper: LocationHelper
     lateinit var networkHelper: NetworkHelper
-//    lateinit var databaseHelper: DatabaseHelper
+    lateinit var databaseHelper: DatabaseHelper
 
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
     val DARK_COLOR = Color.parseColor("#505050")
+    val LIGHT_COLOR = Color.parseColor("#eeeeee")
 
     // @SuppressLint("NewApi")는 해당 프로젝트의 설정 된 minSdkVersion 이후에 나온 API를 사용할때  warning을 없애고 개발자가 해당 APi를 사용할 수 있게 합니다.
     @SuppressLint("SimpleDateFormat")
@@ -78,13 +80,15 @@ class MainActivity : AppCompatActivity() {
         dailyWeatherRecyclerView.adapter = dailyWeatherAdapter
         dailyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        GlobalScope.launch(Dispatchers.IO) {
-//            databaseHelper = DatabaseHelper.getInstance(applicationContext)
-//            if (databaseHelper.weatherDao().getWeather().size == 0) databaseHelper.weatherDao().insert(
-//                WeatherEntity(1, null, null, null, null)
-//            )
-//            println("데이터베이스 : ${databaseHelper.weatherDao().getWeather()}")
+        // If database is not empty, setting views with data
+        GlobalScope.launch {
+            databaseHelper = DatabaseHelper.getInstance(applicationContext)
+            println("데이터베이스 사이즈 : ${databaseHelper.weatherDao().getWeather().size}")
+            if (databaseHelper.weatherDao().getWeather().size > 0) initView()
+        }
 
+        // get weather api
+        GlobalScope.launch(Dispatchers.IO) {
             getWeatherApi()
         }
 
@@ -119,22 +123,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun initView() {
+
+    }
+
     @SuppressLint("SetTextI18n")
     fun setDataFunction() {
         setHourlyData = { model ->
             println("hourly 실행")
             while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)
             // 시간별 날씨 recycler view 적용
-            model.get(0)?.let { item ->
-                hourlyWeatherAdapter.addItem(
-                    HourlyTable(
-                        "지금",
-                        "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
-                        "${(item.temp).toInt()}${getString(R.string.celsius)}"
-                    )
-                )
-            }
-            for (i in 1..23) {
+            for (i in 0..23) {
                 model.get(i)?.let { item ->
                     hourlyWeatherAdapter.addItem(
                         HourlyTable(
@@ -148,24 +147,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         setCurrentData = { model ->
-
-//            databaseHelper.weatherDao().insert(WeatherEntity(0, model.current, null, null))
-//            println("데이터베이스 : ${databaseHelper.weatherDao().getAll()}")
-
             println("current 실행")
             model.weather[0].id.let {
-                if (it>800) mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
-                else if (it==800) {
+                if (it>800) {
+                    mainConstraintLayout.background = getDrawable(R.drawable.bg_clouds)
+                    changeColor(LIGHT_COLOR)
+                } else if (it==800) {
                     mainConstraintLayout.background = getDrawable(R.drawable.bg_clear)
-                    colorToDart()
-                } else if (it>=700) mainConstraintLayout.background = getDrawable(R.drawable.bg_atmosphere)
-                else if (it>=600) {
+                    changeColor(DARK_COLOR)
+                } else if (it>=700) {
+                    mainConstraintLayout.background = getDrawable(R.drawable.bg_atmosphere)
+                    changeColor(LIGHT_COLOR)
+                } else if (it>=600) {
                     mainConstraintLayout.background = getDrawable(R.drawable.bg_snow)
-                    colorToDart()
+                    changeColor(DARK_COLOR)
                 } else if (it>=300) {
                     mainConstraintLayout.background = getDrawable(R.drawable.bg_rain)
-                    colorToDart()
-                } else mainConstraintLayout.background = getDrawable(R.drawable.bg_storm)
+                    changeColor(DARK_COLOR)
+                } else {
+                    mainConstraintLayout.background = getDrawable(R.drawable.bg_storm)
+                    changeColor(LIGHT_COLOR)
+                }
             }
 
             Glide.with(this)
@@ -197,10 +199,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun colorToDart() {
-        currentTempTextView.setTextColor(DARK_COLOR)
-        celsiusTextView.setTextColor(DARK_COLOR)
-        tempText.setTextColor(DARK_COLOR)
-        maxminTempTextView.setTextColor(DARK_COLOR)
+    fun changeColor(color: Int) {
+        currentTempTextView.setTextColor(color)
+        celsiusTextView.setTextColor(color)
+        tempText.setTextColor(color)
+        maxminTempTextView.setTextColor(color)
     }
 }
