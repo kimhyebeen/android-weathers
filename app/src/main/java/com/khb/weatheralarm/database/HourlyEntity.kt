@@ -4,17 +4,18 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "hourly")
 data class HourlyEntity (
-    @PrimaryKey val hourlyid: Int,
-    @ColumnInfo var dt: Long,
-    @ColumnInfo var temp: Double,
-    @ColumnInfo var feelstemp: Double,
-    @ColumnInfo var humidity: Int,
-    @ColumnInfo var clouds: Int,
-    @ColumnInfo var visibility: Int,
-    @ColumnInfo var weatherid: Int,
-    @ColumnInfo var weathermain: String,
-    @ColumnInfo var description: String,
-    @ColumnInfo var icon: String
-)
+    @PrimaryKey(autoGenerate = true) val hourlyid: Int = 0,
+    @ColumnInfo var hourdt: Long? = 0L,
+    @ColumnInfo var hourtemp: Double? = 0.0,
+    @ColumnInfo var hourfeelstemp: Double? = 0.0,
+    @ColumnInfo var hourhumidity: Int? = 0,
+    @ColumnInfo var hourclouds: Int? = 0,
+    @ColumnInfo var hourvisibility: Int? = 0,
+    @ColumnInfo var hourweatherid: Int? = 0,
+    @ColumnInfo var hourweathermain: String? = "",
+    @ColumnInfo var hourdescription: String? = "",
+    @ColumnInfo var houricon: String? = ""
+) {
+//    constructor() : this (null, null, null, null, null ,null, null,null, null, null)
+}

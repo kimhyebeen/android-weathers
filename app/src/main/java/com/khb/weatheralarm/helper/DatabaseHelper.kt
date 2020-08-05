@@ -21,7 +21,7 @@ abstract class DatabaseHelper: RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     DatabaseHelper::class.java,
-                    "weatherdata.db"
+                    "dataweather.db"
                 ).build()
                 return instance!!
             }

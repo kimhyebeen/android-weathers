@@ -81,10 +81,10 @@ class MainActivity : AppCompatActivity() {
         dailyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // If database is not empty, setting views with data
-        GlobalScope.launch {
-            databaseHelper = DatabaseHelper.getInstance(applicationContext)
-            println("데이터베이스 사이즈 : ${databaseHelper.weatherDao().getWeather().size}")
-            if (databaseHelper.weatherDao().getWeather().size > 0) initView()
+        GlobalScope.launch(Dispatchers.Default) {
+//            databaseHelper = DatabaseHelper.getInstance(applicationContext)
+//            println("데이터베이스 사이즈 : ${databaseHelper.weatherDao().getWeather().size}")
+//            if (databaseHelper.weatherDao().getWeather().size > 0) initView()
         }
 
         // get weather api

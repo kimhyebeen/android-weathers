@@ -6,17 +6,17 @@ import androidx.room.*
 interface WeatherDao {
     @Transaction
     @Query("SELECT * FROM weather")
-    fun getWeather(): List<WeatherWithAllEntities>
+    fun getWeather(): List<WeatherEntity>
 
     @Insert
-    fun insert(vararg test: WeatherWithAllEntities)
+    fun insert(vararg test: WeatherEntity)
 
     /** REPLACE :
      * OnConflict strategy constant to replace the old data and continue the transaction.
      */
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateAll(test: WeatherWithAllEntities)
+    fun updateAll(test: WeatherEntity)
 
     @Delete
-    fun deleteAll(weather: WeatherWithAllEntities)
+    fun deleteAll(weather: WeatherEntity)
 }
