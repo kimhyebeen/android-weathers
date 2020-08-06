@@ -4,12 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.khb.weatheralarm.database.WeatherDao
-import com.khb.weatheralarm.database.WeatherEntity
+import com.khb.weatheralarm.db_entity_and_dao.*
 
-@Database(entities = arrayOf(WeatherEntity::class), version = 1)
+@Database(entities = arrayOf(CurrentEntity::class, HourlyEntity::class, DailyEntity::class), version = 1)
 abstract class DatabaseHelper: RoomDatabase() {
-    abstract fun weatherDao(): WeatherDao
+    abstract fun currentDao(): CurrentDao
+    abstract fun hourlyDao(): HourlyDao
+    abstract fun dailyDao(): DailyDao
 
     companion object {
         // Volatile : 스레드가 직접 mail memory에 접근해서 읽을 수 있도록 하는 어노테이션 (?)
@@ -21,7 +22,7 @@ abstract class DatabaseHelper: RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     DatabaseHelper::class.java,
-                    "dataweather.db"
+                    "eachweather.db"
                 ).build()
                 return instance!!
             }

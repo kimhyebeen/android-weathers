@@ -82,8 +82,10 @@ class MainActivity : AppCompatActivity() {
 
         // If database is not empty, setting views with data
         GlobalScope.launch(Dispatchers.Default) {
-//            databaseHelper = DatabaseHelper.getInstance(applicationContext)
-//            println("데이터베이스 사이즈 : ${databaseHelper.weatherDao().getWeather().size}")
+            databaseHelper = DatabaseHelper.getInstance(applicationContext)
+            println("데이터베이스 current 사이즈 : ${databaseHelper.currentDao().getCurrent()}")
+            println("데이터베이스 hourly 사이즈 : ${databaseHelper.hourlyDao().getHourly()}")
+            println("데이터베이스 daily 사이즈 : ${databaseHelper.dailyDao().getDaily()}")
 //            if (databaseHelper.weatherDao().getWeather().size > 0) initView()
         }
 
