@@ -11,6 +11,7 @@ Android project using my idea that is alarming the weather every morning.
 * (비동기 처리) `CoRoutine`
 * (네트워크) `Retrofit`
 * (데이터베이스) `Room`
+* (이미지처리) `Glide`
 
 ...ing
 
