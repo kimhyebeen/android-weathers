@@ -16,3 +16,5 @@ Android project using my idea that is alarming the weather every morning.
 ...ing
 
 ## Application Information
+8월 4일자 진행 상황 :
+![screen_img](./gif_screen.gif)
