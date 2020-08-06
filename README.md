@@ -17,4 +17,4 @@ Android project using my idea that is alarming the weather every morning.
 
 ## Application Information
 8월 4일자 진행 상황 :
-<image src="./gif_screen.gif", width="260" />
+<image src="./gif_screen.gif", width=260 />
