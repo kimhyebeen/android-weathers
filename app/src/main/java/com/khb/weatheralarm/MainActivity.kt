@@ -17,7 +17,12 @@ import com.bumptech.glide.request.RequestOptions
 import com.khb.weatheralarm.adapter.DailyWeatherAdapter
 import com.khb.weatheralarm.adapter.HourlyWeatherAdapter
 import com.khb.weatheralarm.api_model.Daily
+import com.khb.weatheralarm.api_model.DailyTemp
 import com.khb.weatheralarm.api_model.HourlyAndCurrent
+import com.khb.weatheralarm.api_model.WeatherOfHourlyAndCurrent
+import com.khb.weatheralarm.db_entity_and_dao.CurrentEntity
+import com.khb.weatheralarm.db_entity_and_dao.DailyEntity
+import com.khb.weatheralarm.db_entity_and_dao.HourlyEntity
 import com.khb.weatheralarm.helper.DatabaseHelper
 import com.khb.weatheralarm.helper.LocationHelper
 import com.khb.weatheralarm.helper.NetworkHelper
@@ -68,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setDataFunction()
+        setViewDataFunction()
 
         locationHelper = LocationHelper(this)
         networkHelper = NetworkHelper(this)
@@ -81,16 +86,18 @@ class MainActivity : AppCompatActivity() {
         dailyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // If database is not empty, setting views with data
-        GlobalScope.launch(Dispatchers.Default) {
-            databaseHelper = DatabaseHelper.getInstance(applicationContext)
-            println("데이터베이스 current 사이즈 : ${databaseHelper.currentDao().getCurrent()}")
-            println("데이터베이스 hourly 사이즈 : ${databaseHelper.hourlyDao().getHourly()}")
-            println("데이터베이스 daily 사이즈 : ${databaseHelper.dailyDao().getDaily()}")
-//            if (databaseHelper.weatherDao().getWeather().size > 0) initView()
-        }
-
-        // get weather api
         GlobalScope.launch(Dispatchers.IO) {
+            runBlocking {
+                println("데이터베이스 작업 시작")
+                databaseHelper = DatabaseHelper.getInstance(applicationContext)
+                println("데이터베이스 개수 : ${databaseHelper.currentDao().getCurrent().size}개")
+                // TODO(네트워크 연결 안되어 있을 시에만 데이터베이스로 view 세팅하도록 해야 함)
+                if (databaseHelper.currentDao().getCurrent().size>0) {
+                    databaseHelper.currentDao().getCurrent().get(0)
+                        .let { setViewFromDatabase(it, databaseHelper.hourlyDao().getHourly(), databaseHelper.dailyDao().getDaily()) }
+                }
+            }
+            println("데이터베이스 작업 끝")
             getWeatherApi()
         }
 
@@ -103,6 +110,7 @@ class MainActivity : AppCompatActivity() {
     fun getWeatherApi() {
         GlobalScope.launch {
             // get the location
+            println("getWeatherApi 시작")
             withContext(Dispatchers.Default) {
                 location = locationHelper.requestLocationPermissions()
             }
@@ -122,15 +130,63 @@ class MainActivity : AppCompatActivity() {
             } ?: launch(Dispatchers.Main) {
                 Toast.makeText(applicationContext, "There is no location information.", Toast.LENGTH_SHORT).show()
             }
+
+            refreshButton.isClickable = true
+            println("새로고침 버튼 활성화")
         }
     }
 
-    fun initView() {
+    fun setViewFromDatabase(
+        current: CurrentEntity,
+        hourly: List<HourlyEntity>,
+        daily: List<DailyEntity>
+    ) {
+        current.also {
+            setCurrentData(
+                HourlyAndCurrent(
+                    it.dt,
+                    it.temp,
+                    it.feelstemp,
+                    it.humidity,
+                    it.clouds,
+                    it.visibility,
+                    arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon))
+                )
+            )
+        }
 
+        var hourlyList = ArrayList<HourlyAndCurrent>()
+        hourly.map {
+            hourlyList.add(
+                HourlyAndCurrent(
+                    it.dt,
+                    it.temp,
+                    it.feelstemp,
+                    it.humidity,
+                    it.clouds,
+                    it.visibility,
+                    arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon))
+                )
+            )
+        }
+        setHourlyData(hourlyList)
+
+        var dailyList = ArrayList<Daily>()
+        daily.map {
+            dailyList.add(
+                Daily(
+                    it.dt,
+                    DailyTemp(it.daytemp, it.mintemp, it.maxtemp),
+                    it.humidity,
+                    arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon))
+                )
+            )
+        }
+        setDailyData(dailyList)
     }
 
     @SuppressLint("SetTextI18n")
-    fun setDataFunction() {
+    fun setViewDataFunction() {
         setHourlyData = { model ->
             println("hourly 실행")
             while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)

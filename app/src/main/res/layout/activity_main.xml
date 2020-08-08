@@ -74,6 +74,7 @@
         android:layout_marginStart="16dp"
         android:background="@drawable/ic_refresh"
         android:backgroundTint="@android:color/background_light"
+        android:clickable="false"
         app:layout_constraintBottom_toBottomOf="@+id/mainLinearLayout"
         app:layout_constraintStart_toStartOf="parent" />
 
