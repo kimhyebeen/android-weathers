@@ -16,8 +16,6 @@ Android project using my idea that is alarming the weather every morning.
 ...ing
 
 ## Application Information
-TODO : 코루틴 제대로 된 사용법이랑 retrofit 익히기 (지금은 예제 따라한 정도ㅠ)
-
 8월 4일자 진행 상황 :
 
 <image src="./gif_screen.gif" width=260 />
