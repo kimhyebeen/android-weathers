@@ -15,7 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class NetworkHelper(context: Context) {
     val context: Context
-//    val databaseHelper: DatabaseHelper
+    val databaseHelper: DatabaseHelper
     var retrofit: Retrofit
     var weatherAPI: WeatherAPI
 
@@ -26,7 +26,7 @@ class NetworkHelper(context: Context) {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         this.weatherAPI = retrofit.create(WeatherAPI::class.java)
-//        this.databaseHelper = DatabaseHelper.getInstance(context)
+        this.databaseHelper = DatabaseHelper.getInstance(context)
     }
 
     fun requestHourlyWeatherAPI(
@@ -42,9 +42,7 @@ class NetworkHelper(context: Context) {
 
             override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                 println("hourly 성공 : ${response.body().toString()}")
-//                var hourly = databaseHelper.weatherDao().getWeather()[0]
-//                hourly.hourly = response.body()?.hourly!!
-//                databaseHelper.weatherDao().updateAll(hourly)
+                TODO("hourly 데이터를 데이터베이스에 저장")
 
                 response.body()?.let { hourlyData(it.hourly!!) }
             }
@@ -64,9 +62,7 @@ class NetworkHelper(context: Context) {
 
                 override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("current 성공 : ${response.body().toString()}")
-//                    var current = databaseHelper.weatherDao().getWeather()[0]
-//                    current.current = response.body()?.current!!
-//                    databaseHelper.weatherDao().updateAll(current)
+                    TODO("current 데이터를 데이터베이스에 저장")
 
                     response.body()?.let { currentData(it.current!!) }
                 }
@@ -86,9 +82,7 @@ class NetworkHelper(context: Context) {
 
                 override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("daily 성공 : ${response.body().toString()}")
-//                    var daily = databaseHelper.weatherDao().getWeather()[0]
-//                    daily.daily = response.body()?.daily
-//                    databaseHelper.weatherDao().updateAll(daily)
+                    TODO("daily 데이터를 데이터베이스에 저장")
 
                     response.body()?.let { dailyData(it.daily!!) }
                 }

@@ -88,9 +88,7 @@ class MainActivity : AppCompatActivity() {
         // If database is not empty, setting views with data
         GlobalScope.launch(Dispatchers.IO) {
             runBlocking {
-                println("데이터베이스 작업 시작")
                 databaseHelper = DatabaseHelper.getInstance(applicationContext)
-                println("데이터베이스 개수 : ${databaseHelper.currentDao().getCurrent().size}개")
                 // TODO(네트워크 연결 안되어 있을 시에만 데이터베이스로 view 세팅하도록 해야 함)
                 if (databaseHelper.currentDao().getCurrent().size>0) {
                     databaseHelper.currentDao().getCurrent().get(0)
