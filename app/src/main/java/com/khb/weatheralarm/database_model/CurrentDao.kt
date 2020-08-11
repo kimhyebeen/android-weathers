@@ -1,4 +1,4 @@
-package com.khb.weatheralarm.db_entity_and_dao
+package com.khb.weatheralarm.database_model
 
 import androidx.room.*
 

@@ -20,9 +20,9 @@ import com.khb.weatheralarm.api_model.Daily
 import com.khb.weatheralarm.api_model.DailyTemp
 import com.khb.weatheralarm.api_model.HourlyAndCurrent
 import com.khb.weatheralarm.api_model.WeatherOfHourlyAndCurrent
-import com.khb.weatheralarm.db_entity_and_dao.CurrentEntity
-import com.khb.weatheralarm.db_entity_and_dao.DailyEntity
-import com.khb.weatheralarm.db_entity_and_dao.HourlyEntity
+import com.khb.weatheralarm.database_model.CurrentEntity
+import com.khb.weatheralarm.database_model.DailyEntity
+import com.khb.weatheralarm.database_model.HourlyEntity
 import com.khb.weatheralarm.helper.DatabaseHelper
 import com.khb.weatheralarm.helper.LocationHelper
 import com.khb.weatheralarm.helper.NetworkHelper
@@ -116,14 +116,13 @@ class MainActivity : AppCompatActivity() {
             // get the weather api
             location?.let {
                 launch(Dispatchers.IO) { // current
-                    // 원래는 파라미터에 it.latitude.toString()이랑 it.longitude.toString()을 넣어줘야 함.
-                    networkHelper.requestCurrentWeatherAPI("37.305443", "126.817403", setCurrentData)
+                    networkHelper.requestCurrentWeatherAPI(it.latitude.toString(), it.longitude.toString(), setCurrentData)
                 }
                 launch(Dispatchers.IO) { // hourly
-                    networkHelper.requestHourlyWeatherAPI("37.305443", "126.817403", setHourlyData)
+                    networkHelper.requestHourlyWeatherAPI(it.latitude.toString(), it.longitude.toString(), setHourlyData)
                 }
                 launch(Dispatchers.IO) { // daily
-                    networkHelper.requestDailyWeatherAPI("37.305443", "126.817403", setDailyData)
+                    networkHelper.requestDailyWeatherAPI(it.latitude.toString(), it.longitude.toString(), setDailyData)
                 }
             } ?: launch(Dispatchers.Main) {
                 Toast.makeText(applicationContext, "There is no location information.", Toast.LENGTH_SHORT).show()

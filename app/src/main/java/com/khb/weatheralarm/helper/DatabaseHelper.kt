@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.khb.weatheralarm.db_entity_and_dao.*
+import com.khb.weatheralarm.database_model.*
 
 @Database(entities = arrayOf(CurrentEntity::class, HourlyEntity::class, DailyEntity::class), version = 1)
 abstract class DatabaseHelper: RoomDatabase() {
