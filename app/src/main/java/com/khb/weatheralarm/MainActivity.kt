@@ -41,14 +41,6 @@ class MainActivity : AppCompatActivity() {
 
     var location: Location? = null
     val LOCATION_REQUEST_CODE = 200
-    val DARK_COLOR = Color.parseColor("#505050")
-    val LIGHT_COLOR = Color.parseColor("#eeeeee")
-
-    // @SuppressLint("NewApi")는 해당 프로젝트의 설정 된 minSdkVersion 이후에 나온 API를 사용할때  warning을 없애고 개발자가 해당 APi를 사용할 수 있게 합니다.
-    @SuppressLint("SimpleDateFormat")
-    var dailyDateFormat = SimpleDateFormat("MM/dd")
-    @SuppressLint("SimpleDateFormat")
-    var hourlyTimeFormat = SimpleDateFormat("HH시")
 
     var hourlyWeatherAdapter = HourlyWeatherAdapter()
     var dailyWeatherAdapter = DailyWeatherAdapter()
@@ -73,19 +65,32 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setViewDataFunction()
+        initViewFunctionOfCurrentData()
+        initViewFunctionOfHourlyData()
+        initViewFunctionOfDailyData()
 
         locationHelper = LocationHelper(this)
         networkHelper = NetworkHelper(this)
 
-        hourlyWeatherRecyclerView.adapter = hourlyWeatherAdapter
-        hourlyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        hourlyWeatherRecyclerView.addItemDecoration(DividerItemDecoration(this, 0))
+        hourlyWeatherRecyclerView.apply {
+            adapter = hourlyWeatherAdapter
+            layoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.HORIZONTAL, false)
+            addItemDecoration(DividerItemDecoration(applicationContext, 0))
+        }
 
-        dailyWeatherRecyclerView.adapter = dailyWeatherAdapter
-        dailyWeatherRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        dailyWeatherRecyclerView.apply {
+            adapter = dailyWeatherAdapter
+            layoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
+        }
 
-        // If database is not empty, setting views with data
+        getDatabaseAndSetView()
+
+        refreshButton.setOnClickListener {
+            getWeatherApi()
+        }
+    }
+
+    private fun getDatabaseAndSetView() {
         GlobalScope.launch(Dispatchers.IO) {
             runBlocking {
                 databaseHelper = DatabaseHelper.getInstance(applicationContext)
@@ -98,22 +103,14 @@ class MainActivity : AppCompatActivity() {
             println("데이터베이스 작업 끝")
             getWeatherApi()
         }
-
-        refreshButton.setOnClickListener {
-            getWeatherApi()
-            Toast.makeText(this, "새로고침 되었습니다", Toast.LENGTH_SHORT).show()
-        }
     }
 
-    fun getWeatherApi() {
+    private fun getWeatherApi() {
         GlobalScope.launch {
-            // get the location
-            println("getWeatherApi 시작")
             withContext(Dispatchers.Default) {
                 location = locationHelper.requestLocationPermissions()
             }
 
-            // get the weather api
             location?.let {
                 launch(Dispatchers.IO) { // current
                     networkHelper.requestCurrentWeatherAPI(it.latitude.toString(), it.longitude.toString(), setCurrentData)
@@ -129,77 +126,19 @@ class MainActivity : AppCompatActivity() {
             }
 
             refreshButton.isClickable = true
-            println("새로고침 버튼 활성화")
         }
     }
 
-    fun setViewFromDatabase(
-        current: CurrentEntity,
-        hourly: List<HourlyEntity>,
-        daily: List<DailyEntity>
-    ) {
-        current.also {
-            setCurrentData(
-                HourlyAndCurrent(
-                    it.dt,
-                    it.temp,
-                    it.feelstemp,
-                    it.humidity,
-                    it.clouds,
-                    it.visibility,
-                    arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon))
-                )
-            )
-        }
-
-        var hourlyList = ArrayList<HourlyAndCurrent>()
-        hourly.map {
-            hourlyList.add(
-                HourlyAndCurrent(
-                    it.dt,
-                    it.temp,
-                    it.feelstemp,
-                    it.humidity,
-                    it.clouds,
-                    it.visibility,
-                    arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon))
-                )
-            )
-        }
-        setHourlyData(hourlyList)
-
-        var dailyList = ArrayList<Daily>()
-        daily.map {
-            dailyList.add(
-                Daily(
-                    it.dt,
-                    DailyTemp(it.daytemp, it.mintemp, it.maxtemp),
-                    it.humidity,
-                    arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon))
-                )
-            )
-        }
-        setDailyData(dailyList)
+    private fun changeColor(color: Int) {
+        currentTempTextView.setTextColor(color)
+        celsiusTextView.setTextColor(color)
+        tempText.setTextColor(color)
+        maxminTempTextView.setTextColor(color)
     }
 
-    @SuppressLint("SetTextI18n")
-    fun setViewDataFunction() {
-        setHourlyData = { model ->
-            println("hourly 실행")
-            while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)
-            // 시간별 날씨 recycler view 적용
-            for (i in 0..23) {
-                model.get(i)?.let { item ->
-                    hourlyWeatherAdapter.addItem(
-                        HourlyTable(
-                            hourlyTimeFormat.format(item.dt!! * 1000L),
-                            "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
-                            "${(item.temp).toInt()}${getString(R.string.celsius)}"
-                        )
-                    )
-                }
-            }
-        }
+    private fun initViewFunctionOfCurrentData() {
+        val DARK_COLOR = Color.parseColor("#505050")
+        val LIGHT_COLOR = Color.parseColor("#eeeeee")
 
         setCurrentData = { model ->
             println("current 실행")
@@ -232,7 +171,31 @@ class MainActivity : AppCompatActivity() {
                 .into(mainWeatherImageView)
             currentTempTextView.text = "${model.temp.toInt()}"
         }
+    }
 
+    // @SuppressLint("NewApi")는 해당 프로젝트의 설정 된 minSdkVersion 이후에 나온 API를 사용할때  warning을 없애고 개발자가 해당 APi를 사용할 수 있게 합니다.
+    @SuppressLint("SimpleDateFormat")
+    fun initViewFunctionOfHourlyData() {
+        setHourlyData = { model ->
+            println("hourly 실행")
+            while(hourlyWeatherAdapter.itemCount>0) hourlyWeatherAdapter.removeItem(0)
+            // 시간별 날씨 recycler view 적용
+            for (i in 0..23) {
+                model.get(i)?.let { item ->
+                    hourlyWeatherAdapter.addItem(
+                        HourlyTable(
+                            SimpleDateFormat("HH시").format(item.dt!! * 1000L),
+                            "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
+                            "${(item.temp).toInt()}${getString(R.string.celsius)}"
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n", "SimpleDateFormat")
+    fun initViewFunctionOfDailyData() {
         setDailyData = { model ->
             println("daily 실행")
             model.get(0)?.let { item ->
@@ -243,7 +206,7 @@ class MainActivity : AppCompatActivity() {
                 model.get(i)?.let { item ->
                     dailyWeatherAdapter.addItem(
                         DailyTable(
-                            dailyDateFormat.format(item.dt!! * 1000L),
+                            SimpleDateFormat("MM/dd").format(item.dt!! * 1000L),
                             "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png",
                             "${(item.temp.max).toInt()}",
                             "${(item.temp.min).toInt()}"
@@ -254,10 +217,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun changeColor(color: Int) {
-        currentTempTextView.setTextColor(color)
-        celsiusTextView.setTextColor(color)
-        tempText.setTextColor(color)
-        maxminTempTextView.setTextColor(color)
+    private fun setViewFromDatabase(
+        current: CurrentEntity,
+        hourly: List<HourlyEntity>,
+        daily: List<DailyEntity>
+    ) {
+        current.also {
+            setCurrentData(
+                HourlyAndCurrent(it.dt, it.temp, it.feelstemp, it.humidity, it.clouds, it.visibility, arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon)))
+            )
+        }
+
+        var hourlyList = ArrayList<HourlyAndCurrent>()
+        hourly.map {
+            hourlyList.add(
+                HourlyAndCurrent(it.dt, it.temp, it.feelstemp, it.humidity, it.clouds, it.visibility, arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon)))
+            )
+        }
+        setHourlyData(hourlyList)
+
+        var dailyList = ArrayList<Daily>()
+        daily.map {
+            dailyList.add(
+                Daily(it.dt, DailyTemp(it.daytemp, it.mintemp, it.maxtemp), it.humidity, arrayListOf(WeatherOfHourlyAndCurrent(it.weatherid, it.main, it.description, it.icon)))
+            )
+        }
+        setDailyData(dailyList)
     }
 }
