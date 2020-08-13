@@ -23,9 +23,5 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-
-//        var size = Point()
-//        windowManager.defaultDisplay.getRealSize(size)
-//        splashLogoImageView.layoutParams.height = size.y / 5 * 3
     }
 }

@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             runBlocking {
                 databaseHelper = DatabaseHelper.getInstance(applicationContext)
                 // TODO(네트워크 연결 안되어 있을 시에만 데이터베이스로 view 세팅하도록 해야 함)
-                if (databaseHelper.currentDao().getCurrent().size>0) {
+                if (databaseHelper.currentDao().getCurrent().isNotEmpty()) {
                     databaseHelper.currentDao().getCurrent().get(0)
                         .let { setViewFromDatabase(it, databaseHelper.hourlyDao().getHourly(), databaseHelper.dailyDao().getDaily()) }
                 }
