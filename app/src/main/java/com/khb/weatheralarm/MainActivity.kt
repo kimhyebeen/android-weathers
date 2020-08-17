@@ -91,14 +91,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getDatabaseAndSetView() {
-        GlobalScope.launch(Dispatchers.IO) {
-            runBlocking {
-                databaseHelper = DatabaseHelper.getInstance(applicationContext)
-                // TODO(네트워크 연결 안되어 있을 시에만 데이터베이스로 view 세팅하도록 해야 함)
-                if (databaseHelper.currentDao().getCurrent().isNotEmpty()) {
-                    databaseHelper.currentDao().getCurrent().get(0)
-                        .let { setViewFromDatabase(it, databaseHelper.hourlyDao().getHourly(), databaseHelper.dailyDao().getDaily()) }
-                }
+        GlobalScope.launch {
+            databaseHelper = DatabaseHelper.getInstance(applicationContext)
+
+            // TODO(네트워크 연결 안되어 있을 시에만 데이터베이스로 view 세팅하도록 해야 함)
+            println("사이즈 : ${databaseHelper.currentDao().getCurrent().size}")
+            if (databaseHelper.currentDao().getCurrent().size > 0) {
+//                databaseHelper.currentDao().getCurrent().get(0)
+//                    .let {
+//                        launch(Dispatchers.Main) { setViewFromDatabase(it, databaseHelper.hourlyDao().getHourly(), databaseHelper.dailyDao().getDaily()) }
+//                    }
+                println("현재 : ${databaseHelper.currentDao().getCurrent()[0]}") // dt = 1597656499
+                println("시간별 데이터 개수 : ${databaseHelper.hourlyDao().getHourly().size}개")
+                println("날짜별 데이터 개수 : ${databaseHelper.dailyDao().getDaily().size}개")
             }
             println("데이터베이스 작업 끝")
             getWeatherApi()
@@ -106,6 +111,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getWeatherApi() {
+        // TODO(네트워크 연결되어 있을 시에만 동작하도록 해야 함)
         GlobalScope.launch {
             withContext(Dispatchers.Default) {
                 location = locationHelper.requestLocationPermissions()

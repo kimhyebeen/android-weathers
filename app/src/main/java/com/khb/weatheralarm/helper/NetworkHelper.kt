@@ -7,6 +7,11 @@ import com.khb.weatheralarm.WeatherAPI
 import com.khb.weatheralarm.api_model.Daily
 import com.khb.weatheralarm.api_model.HourlyAndCurrent
 import com.khb.weatheralarm.api_model.MainApi
+import com.khb.weatheralarm.database_model.CurrentEntity
+import com.khb.weatheralarm.database_model.DailyEntity
+import com.khb.weatheralarm.database_model.HourlyEntity
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -42,9 +47,33 @@ class NetworkHelper(context: Context) {
 
             override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                 println("hourly 성공 : ${response.body().toString()}")
-                TODO("hourly 데이터를 데이터베이스에 저장")
 
-                response.body()?.let { hourlyData(it.hourly!!) }
+                response.body()?.let {
+                    hourlyData(it.hourly!!)
+                    for (i in 0..23) {
+                        it.hourly!![i].let{
+                            HourlyEntity(i+101,
+                                it.dt,
+                                it.temp,
+                                it.feels_like,
+                                it.humidity,
+                                it.clouds,
+                                it.visibility,
+                                it.weather[0].id,
+                                it.weather[0].main,
+                                it.weather[0].description,
+                                it.weather[0].icon
+                            ).let { entity ->
+                                GlobalScope.launch {
+                                    if (databaseHelper.hourlyDao().getHourly().size >= 24)
+                                        databaseHelper.hourlyDao().updateHourly(entity)
+                                    else
+                                        databaseHelper.hourlyDao().insertHourly(entity)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         })
     }
@@ -62,9 +91,30 @@ class NetworkHelper(context: Context) {
 
                 override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("current 성공 : ${response.body().toString()}")
-                    TODO("current 데이터를 데이터베이스에 저장")
 
-                    response.body()?.let { currentData(it.current!!) }
+                    response.body()?.let {
+                        currentData(it.current!!)
+                        CurrentEntity(101,
+                            it.timezone,
+                            it.current!!.dt,
+                            it.current!!.temp,
+                            it.current!!.feels_like,
+                            it.current!!.humidity,
+                            it.current!!.clouds,
+                            it.current!!.visibility,
+                            it.current!!.weather[0].id,
+                            it.current!!.weather[0].main,
+                            it.current!!.weather[0].description,
+                            it.current!!.weather[0].icon
+                        ).let {
+                            GlobalScope.launch {
+                                if (databaseHelper.currentDao().getCurrent().size > 0)
+                                    databaseHelper.currentDao().updateCurrent(it)
+                                else
+                                    databaseHelper.currentDao().insertCurrent(it)
+                            }
+                        }
+                    }
                 }
             })
     }
@@ -82,9 +132,32 @@ class NetworkHelper(context: Context) {
 
                 override fun onResponse(call: Call<MainApi>, response: Response<MainApi>) {
                     println("daily 성공 : ${response.body().toString()}")
-                    TODO("daily 데이터를 데이터베이스에 저장")
 
-                    response.body()?.let { dailyData(it.daily!!) }
+                    response.body()?.let {
+                        dailyData(it.daily!!)
+                        for (i in 0..7) {
+                            it.daily!![i].let{
+                                DailyEntity(i+101,
+                                    it.dt,
+                                    it.temp.day,
+                                    it.temp.min,
+                                    it.temp.max,
+                                    it.humidity,
+                                    it.weather[0].id,
+                                    it.weather[0].main,
+                                    it.weather[0].description,
+                                    it.weather[0].icon
+                                ).let { entity ->
+                                    GlobalScope.launch {
+                                        if (databaseHelper.dailyDao().getDaily().size >= 8)
+                                            databaseHelper.dailyDao().updateDaily(entity)
+                                        else
+                                            databaseHelper.dailyDao().insertDaily(entity)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             })
     }
