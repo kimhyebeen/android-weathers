@@ -1,5 +1,10 @@
 [![GitHub issues](https://img.shields.io/github/issues/kimhyebeen/Android_WeatherAlarm)](https://github.com/kimhyebeen/Android_WeatherAlarm/issues)
+
 ![language](https://img.shields.io/badge/language-Kotlin-9cf)
+![비동기처리](https://img.shields.io/badge/%EB%B9%84%EB%8F%99%EA%B8%B0%EC%B2%98%EB%A6%AC-CoRoutine-6054d1)
+![network](https://img.shields.io/badge/network-Retrofit-yellow)
+![database](https://img.shields.io/badge/database-Room-d9fff8)
+![image](https://img.shields.io/badge/image-Glide-edfcd2)
 
 # Android_WeatherAlarm
 일정 시간마다 날씨를 푸시 메시지로 알려주는 날씨 알리미 애플리케이션
