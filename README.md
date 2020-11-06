@@ -7,7 +7,8 @@
 ![image](https://img.shields.io/badge/image-Glide-edfcd2)
 
 # Android_WeatherAlarm
-일정 시간마다 날씨를 푸시 메시지로 알려주는 날씨 알리미 애플리케이션
+~일정 시간마다 날씨를 푸시 메시지로 알려주는 날씨 알리미 애플리케이션~
+현재위치를 기반으로 날씨를 나타내는 날씨 애플리케이션
 
 ## Basic Information
 
